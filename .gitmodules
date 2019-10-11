@@ -1,0 +1,3 @@
+[submodule "tumblr-emotions"]
+	path = tumblr-emotions
+	url = git@github.com:anthonyhu/tumblr-emotions.git

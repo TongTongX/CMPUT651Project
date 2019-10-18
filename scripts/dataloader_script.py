@@ -19,12 +19,13 @@ def show_batch(sample_batched):
 
 def main():
   trial_meme_dataset_transformed = MemeDataset(
-      csv_file='/data/data1.csv', image_dir='/',
+      csv_file='/data/data1.csv',
+      image_dir='/home/xutong/Downloads/semeval-2020_trialdata/Meme_images/',
       transform=transforms.Compose(
         [ResizeSample(size=(256, 256)),
         ToTensorSample(),
-        NormalizeSample(mean=[0.485, 0.456, 0.406],
-        std=[0.229, 0.224, 0.225])]))
+        NormalizeSample(mean=[123.675, 116.28, 103.53],
+        std=[58.395, 57.12, 57.375])]))
   
   for i in range(len(trial_meme_dataset_transformed)):
     sample = trial_meme_dataset_transformed[i]

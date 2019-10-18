@@ -58,7 +58,8 @@ def main():
   # Apply each of the above transforms on sample.
   fig = plt.figure()
   trial_meme_dataset = MemeDataset(
-    csv_file='data1.csv', image_dir='/')
+    csv_file='data1.csv',
+    image_dir='/home/xutong/Downloads/semeval-2020_trialdata/Meme_images/')
   for i in range(len(trial_meme_dataset)):
     sample = trial_meme_dataset[i]
     print(i, np.array(sample['image']).shape)

@@ -56,8 +56,8 @@ class MemeDataset(Dataset):
       | ~self.meme_frame['motivational'].isin(VALID_LABELS['motivational'])
       | ~self.meme_frame['overall_sentiment'].isin(
         VALID_LABELS['overall_sentiment'])].index
-    invalid_url_row_indices = self.get_invalid_url_row_indices()
-    invalid_row_indices = invalid_row_indices.append(invalid_url_row_indices)
+    # invalid_url_row_indices = self.get_invalid_url_row_indices()
+    # invalid_row_indices = invalid_row_indices.append(invalid_url_row_indices)
     invalid_row_indices = invalid_row_indices.drop_duplicates()
     invalid_len = len(invalid_row_indices)
     print('len(invalid_row_indices): {}'.format(invalid_len))
@@ -107,13 +107,13 @@ class MemeDataset(Dataset):
 
     image_name = self.meme_frame['image_name'][idx]
     # TODO(xutong) Retrieve image from local directory
-    # image_path = os.path.join(self.root_dir, image_name)
-    # image = Image.open(fp=image_path)
+    image_path = os.path.join(self.image_dir, image_name)
+    image = Image.open(fp=image_path)
     # Retrieve image from url - invalid url around 1/5 of trial dataset
-    image_url = self.meme_frame['image_url'][idx]
-    response = requests.get(url=image_url)
-    assert response.status_code == 200
-    image = Image.open(BytesIO(response.content))
+    # image_url = self.meme_frame['image_url'][idx]
+    # response = requests.get(url=image_url)
+    # assert response.status_code == 200
+    # image = Image.open(BytesIO(response.content))
     # Convert image to RGB. This drops the opacity channel if it exists.
     image = image.convert(mode='RGB')
 
@@ -163,8 +163,8 @@ class MemeDataset(Dataset):
     return sample
 
 def main():
-  trial_meme_dataset = MemeDataset(
-    csv_file='data1.csv', image_dir='/')
+  trial_meme_dataset = MemeDataset(csv_file='data1.csv',
+    image_dir='/home/xutong/Downloads/semeval-2020_trialdata/Meme_images/')
 
   fig = plt.figure()
 

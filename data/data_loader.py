@@ -23,5 +23,4 @@ def readCSV(filename):
     return np.asarray(dataset)
 
 if __name__ == "__main__":
-    # readCSV("data_7000.csv")
-    dataset = readCSV("prob_test.csv")
+    dataset = readCSV("data_7000.csv")

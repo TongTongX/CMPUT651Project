@@ -14,7 +14,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 #     return X_train, X_test, y_train, y_test
 
 class SVM_Classifier:
-    def __init__(self, _kernel, _degree):
+    def __init__(self, _kernel, _degree=None):
         # (kernal, degree) can be: ('linear'), ('poly', 6), ('rbf'), ('sigmoid')
         self.kernel = _kernel
         self.degree = _degree

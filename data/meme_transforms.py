@@ -51,8 +51,8 @@ def main():
   data_transform = transforms.Compose([
           ResizeSample(size=(256, 256)),
           ToTensorSample(),
-          NormalizeSample(mean=[0.485, 0.456, 0.406],
-                          std=[0.229, 0.224, 0.225])
+          NormalizeSample(mean=[123.675, 116.28, 103.53],
+                          std=[58.395, 57.12, 57.375])
       ])
 
   # Apply each of the above transforms on sample.
@@ -65,6 +65,8 @@ def main():
     print(i, np.array(sample['image']).shape)
     transformed_sample = data_transform(sample)
     print(i, np.array(transformed_sample['image']).shape)
+    print('transformed_sample[\'image\'].numpy()[1,2,3]: {}'.format(
+      transformed_sample['image'].numpy()[1,2,3]))
     ax = plt.subplot(1, 4, i + 1)
     plt.tight_layout()
     ax.set_title('Sample #{}'.format(i))
@@ -74,3 +76,6 @@ def main():
     if i == 3:
       plt.show()
       break
+
+if __name__ == '__main__':
+  main()

@@ -37,7 +37,10 @@ def main():
     shuffle=True, num_workers=4)
 
   for i_batch, sample_batched in enumerate(dataloader):
-    print(i_batch, sample_batched['image'].size())
+    print(i_batch, sample_batched['image'].size(),
+      sample_batched['image'].numpy().shape)
+    print(sample_batched['ocr_extracted_text'])
+    print(sample_batched['corrected_text'])
 
     # observe 4th batch and stop.
     if i_batch == 3:

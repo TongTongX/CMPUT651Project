@@ -1,7 +1,5 @@
 import numpy as np
 import re
-# data = """part 1;"this is ; part 2;";'this is ; part 3';part 4;this "is ; part" 5"""
-
 
 def readCSV(filename):
     f = open(filename, 'r')
@@ -10,7 +8,6 @@ def readCSV(filename):
         line=line[:-1]
         row = re.split(' ,|,',line)
         dataset.append(row)
-
 
         # for testing
         # print("")

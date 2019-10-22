@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 from torchvision import transforms, utils
@@ -19,13 +20,14 @@ def show_batch(sample_batched):
 
 def main():
   trial_meme_dataset_transformed = MemeDataset(
-      csv_file='/data/data1.csv',
-      image_dir='/home/xutong/Downloads/semeval-2020_trialdata/Meme_images/',
-      transform=transforms.Compose(
-        [ResizeSample(size=(256, 256)),
-        ToTensorSample(),
-        NormalizeSample(mean=[123.675, 116.28, 103.53],
-        std=[58.395, 57.12, 57.375])]))
+    csv_file=os.path.join(os.getcwd(), 'data/data1.csv'),
+    image_dir=os.path.join(os.path.expanduser('~'),
+      'Downloads/semeval-2020_trialdata/Meme_images/'),
+    transform=transforms.Compose(
+      [ResizeSample(size=(256, 256)),
+      ToTensorSample(),
+      NormalizeSample(mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225])]))
   
   for i in range(len(trial_meme_dataset_transformed)):
     sample = trial_meme_dataset_transformed[i]
@@ -50,3 +52,6 @@ def main():
       plt.ioff()
       plt.show()
       break
+
+if __name__ == '__main__':
+  main()

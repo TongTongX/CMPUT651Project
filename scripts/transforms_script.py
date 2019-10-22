@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
 import numpy as np
 from torchvision import transforms
 import matplotlib.pyplot as plt
@@ -13,22 +14,24 @@ def main():
   data_transform = transforms.Compose([
           ResizeSample(size=(256, 256)),
           ToTensorSample(),
-          NormalizeSample(mean=[123.675, 116.28, 103.53],
-                          std=[58.395, 57.12, 57.375])
+          NormalizeSample(mean=[0.485, 0.456, 0.406],
+                          std=[0.229, 0.224, 0.225])
       ])
 
   # Apply each of the above transforms on sample.
   fig = plt.figure()
   trial_meme_dataset = MemeDataset(
-    csv_file='data1.csv',
-    image_dir='/home/xutong/Downloads/semeval-2020_trialdata/Meme_images/')
+    csv_file=os.path.join(os.getcwd(), 'data/data1.csv'),
+    image_dir=os.path.join(os.path.expanduser('~'),
+      'Downloads/semeval-2020_trialdata/Meme_images/'))
   for i in range(len(trial_meme_dataset)):
     sample = trial_meme_dataset[i]
     print(i, np.array(sample['image']).shape)
     transformed_sample = data_transform(sample)
     print(i, np.array(transformed_sample['image']).shape)
-    print('transformed_sample[\'image\'].numpy()[1,2,3]: {}'.format(
-      transformed_sample['image'].numpy()[1,2,3]))
+    print(transformed_sample['image'].numpy().max(axis=1))
+    print('transformed_sample[\'image\'].numpy()[0,128,128]: {}'.format(
+      transformed_sample['image'].numpy()[0,128,128]))
     ax = plt.subplot(1, 4, i + 1)
     plt.tight_layout()
     ax.set_title('Sample #{}'.format(i))

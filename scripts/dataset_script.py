@@ -2,14 +2,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
 from data.meme_dataset import MemeDataset
 
 def main():
-  trial_meme_dataset = MemeDataset(csv_file='data1.csv',
-    image_dir='/home/xutong/Downloads/semeval-2020_trialdata/Meme_images/')
+  trial_meme_dataset = MemeDataset(
+    csv_file=os.path.join(os.getcwd(), 'data/data1.csv'),
+    image_dir=os.path.join(os.path.expanduser('~'),
+      'Downloads/semeval-2020_trialdata/Meme_images/'))
 
   fig = plt.figure()
 

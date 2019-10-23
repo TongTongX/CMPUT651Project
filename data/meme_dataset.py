@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import csv
 import torch
 import pandas as pd
 import numpy as np
@@ -20,7 +21,7 @@ VALID_LABELS = {
       ['not_offensive', 'slight', 'very_offensive', 'hateful_offensive'],
     'motivational': ['not_motivational', 'motivational'],
     'overall_sentiment':
-      ['very_positive', 'positive', 'neutral', 'negative', 'very_negative'],
+      ['very_negative', 'negative', 'neutral', 'positive', 'very_positive'],
 }
 
 class MemeDataset(Dataset):
@@ -40,7 +41,14 @@ class MemeDataset(Dataset):
     self._preprocess_dataset()
     
   def _preprocess_dataset(self):
-    self.meme_frame = pd.read_csv(filepath_or_buffer=self.csv_file)
+    # self.meme_frame = pd.read_csv(filepath_or_buffer=self.csv_file)
+    self.meme_frame = pd.read_csv(
+      filepath_or_buffer=self.csv_file, sep=' ,|,', quoting=csv.QUOTE_NONE,
+      error_bad_lines=False, header=None, engine='python',
+      names=['image_name', 'image_url', 'ocr_extracted_text', 'corrected_text',
+        'humour', 'sarcasm', 'offensive', 'motivational', 'overall_sentiment',
+        'basis_of_classification', 'extra_arg'])
+
     # Convert column names to lower case.
     self.meme_frame.columns = map(str.lower, self.meme_frame.columns)
     # Drop rows with invalid values.
@@ -58,11 +66,19 @@ class MemeDataset(Dataset):
     invalid_len = len(invalid_row_indices)
     print('len(invalid_row_indices): {}'.format(invalid_len))
     self.meme_frame.drop(index=invalid_row_indices, inplace=True)
+    self.meme_frame.reset_index(drop=True, inplace=True)
+    self.meme_frame['ocr_extracted_text'] = (
+      self.meme_frame['ocr_extracted_text'].astype('str'))
+    self.meme_frame['corrected_text'] = (
+      self.meme_frame['corrected_text'].astype('str'))
+    print('len(self.meme_frame): {}'.format(len(self.meme_frame)))
     assert frame_len_before_drop - invalid_len == len(self.meme_frame)
     # Add onehot label columns
     for label in VALID_LABELS.keys():
-      self.meme_frame[label + '_onehot'] = pd.get_dummies(
-        data=self.meme_frame[label]).values.tolist()
+      onehot_array = pd.get_dummies(
+        data=self.meme_frame[label])[VALID_LABELS[label]].values
+      self.meme_frame[label + '_onehot'] = onehot_array.tolist()
+      self.meme_frame[label + '_int'] = np.argmax(onehot_array, axis=1).tolist()
 
   def get_invalid_url_row_indices(self):
     valid_count = 0
@@ -123,6 +139,11 @@ class MemeDataset(Dataset):
     offensive_onehot = None
     motivational_onehot = None
     overall_sentiment_onehot = None
+    humour_int = None
+    sarcasm_int = None
+    offensive_int = None
+    motivational_int = None
+    overall_sentiment_int = None
     if not self.is_test:
       humour_onehot = torch.from_numpy(
           np.array(self.meme_frame['humour_onehot'][idx])).unsqueeze_(0)
@@ -139,8 +160,20 @@ class MemeDataset(Dataset):
       assert sarcasm_onehot.shape == torch.Size([1, 4])
       assert offensive_onehot.shape == torch.Size([1, 4])
       assert motivational_onehot.shape == torch.Size([1, 2])
-      assert overall_sentiment_onehot.shape == torch.Size([1, 5]) 
+      assert overall_sentiment_onehot.shape == torch.Size([1, 5])
+      humour_int = self.meme_frame['humour_int'][idx]
+      sarcasm_int = self.meme_frame['sarcasm_int'][idx]
+      offensive_int = self.meme_frame['offensive_int'][idx]
+      motivational_int = self.meme_frame['motivational_int'][idx]
+      overall_sentiment_int = self.meme_frame['overall_sentiment_int'][idx]
+      assert isinstance(humour_int, np.int64)
+      assert isinstance(sarcasm_int, np.int64)
+      assert isinstance(offensive_int, np.int64)
+      assert isinstance(motivational_int, np.int64)
+      assert isinstance(overall_sentiment_int, np.int64)
 
+    # print(type(image_name), type(image), type(ocr_extracted_text), type(corrected_text),
+    # type(humour_onehot), type())
     sample = {
         'image_name': image_name, # For debugging.
         'image': image,
@@ -151,9 +184,28 @@ class MemeDataset(Dataset):
         'offensive_onehot': offensive_onehot,
         'motivational_onehot': motivational_onehot,
         'overall_sentiment_onehot': overall_sentiment_onehot,
+        'humour_int': humour_int,
+        'sarcasm_int': sarcasm_int,
+        'offensive_int': offensive_int,
+        'motivational_int': motivational_int,
+        'overall_sentiment_int': overall_sentiment_int,
         }
 
     if self.transform:
-        sample = self.transform(sample)
+      sample = self.transform(sample)
+
+    # Debug data types
+    # print('type(sample[\'image_name\']): {}'.format(
+    #   type(sample['image_name'])))
+    # print('type(sample[\'image\']): {}'.format(
+    #   type(sample['image'])))
+    # print('type(sample[\'ocr_extracted_text\']): {}'.format(
+    #   type(sample['ocr_extracted_text'])))
+    # print('type(sample[\'corrected_text\']): {}'.format(
+    #   type(sample['corrected_text'])))
+    # print('type(sample[\'humour_onehot\']): {}'.format(
+    #   type(sample['humour_onehot'])))
+    # print('type(sample[\'humour_int\']): {}\n'.format(
+    #   type(sample['humour_int'])))
 
     return sample

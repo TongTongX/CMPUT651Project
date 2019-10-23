@@ -27,9 +27,11 @@ def main():
   for i in range(len(trial_meme_dataset)):
     sample = trial_meme_dataset[i]
     print(i, np.array(sample['image']).shape)
+    print('np.array(sample[\'image\'])[128,128,0]: {}'.format(
+      np.array(sample['image'])[128,128,0]))
     transformed_sample = data_transform(sample)
     print(i, np.array(transformed_sample['image']).shape)
-    print(transformed_sample['image'].numpy().max(axis=1))
+    # print(transformed_sample['image'].numpy().max(axis=1))
     print('transformed_sample[\'image\'].numpy()[0,128,128]: {}'.format(
       transformed_sample['image'].numpy()[0,128,128]))
     ax = plt.subplot(1, 4, i + 1)

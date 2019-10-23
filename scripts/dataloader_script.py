@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import numpy as np
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 from torchvision import transforms, utils
@@ -41,8 +42,20 @@ def main():
   for i_batch, sample_batched in enumerate(dataloader):
     print(i_batch, sample_batched['image'].size(),
       sample_batched['image'].numpy().shape)
-    print(sample_batched['ocr_extracted_text'])
-    print(sample_batched['corrected_text'])
+    print('sample_batched[\'image_name\']:\n{}'.format(
+      sample_batched['image_name']))
+    print('sample_batched[\'humour_onehot\']:\n{}'.format(
+      sample_batched['humour_onehot']))
+    print('sample_batched[\'humour_int\']:\n{}'.format(
+      sample_batched['humour_int']))
+    print('sample_batched[\'offensive_onehot\']:\n{}'.format(
+      sample_batched['offensive_onehot']))
+    print('sample_batched[\'offensive_int\']:\n{}'.format(
+      sample_batched['offensive_int']))
+    print('sample_batched[\'ocr_extracted_text\']:\n{}'.format(
+      sample_batched['ocr_extracted_text']))
+    print('sample_batched[\'corrected_text\']:\n{}\n'.format(
+      sample_batched['corrected_text']))
 
     # observe 4th batch and stop.
     if i_batch == 3:

@@ -15,6 +15,7 @@ setuptools.setup(
   license='GNU General Public License v3.0',
   url='http://https://github.com/TongTongX/CMPUT651Project',
   install_requires=[
+    'sklearn',
     'torch',
   ],
   packages=setuptools.find_packages(),

@@ -1,9 +1,22 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import numpy as np
 import sklearn.linear_model
 from sklearn import datasets
 import matplotlib.pyplot as plt
 import sklearn.multiclass
 from sklearn.datasets import make_multilabel_classification
+
+import os
+import matplotlib.pyplot as plt
+from torch.utils.data import DataLoader
+from torchvision import transforms, utils
+from sklearn.metrics import accuracy_score, f1_score
+
+from data.meme_dataset import MemeDataset
+from data.meme_transforms import ResizeSample, ToTensorSample, NormalizeSample
 
 
 
@@ -96,3 +109,70 @@ class LogisticRegression_MultiLabel:
 # Z = lr_multilabel_classifier.predict(X)
 #
 # print('Training mean accuracy: ', lr_multilabel_classifier.cal_accuracy(X, Y))
+
+
+
+def read_text_embeddings_Idx(filename):
+    imgname_textEmbs = dict()
+
+    f = open(filename, 'r')
+
+    for row in f:
+        row = row[:-1]
+
+        row_lst = row.split(',')
+
+        imagename = row_lst[0]
+        textEmb_lst = row_lst[-768:]
+
+        textEmb = np.zeros((768,))
+
+        for emb_idx in range(len(textEmb_lst)):
+            if emb_idx == 0:
+                textEmb[emb_idx] = float(textEmb_lst[emb_idx][1:])
+            elif emb_idx == len(textEmb_lst) - 1:
+                textEmb[emb_idx] = float(textEmb_lst[emb_idx][:-1])
+                print(textEmb[emb_idx])
+            else:
+                textEmb[emb_idx] = float(textEmb_lst[emb_idx])
+
+        imgname_textEmbs[imagename] = textEmb
+
+    return imgname_textEmbs
+
+
+def eval_classifier(meme_dataset_transformed):
+    dataloader = DataLoader(dataset=meme_dataset_transformed, batch_size=len(meme_dataset_transformed),
+    shuffle=False, num_workers=0)
+
+    image_names = None
+
+    text_embeddings = None
+
+    task1_y = None
+
+    for i_batch, sample in enumerate(dataloader):
+        image_names = sample['image_name']
+
+        task1_y = sample['overall_sentiment_int']
+
+
+
+imgname_textEmbs = read_text_embeddings_Idx('../data/data1_textEmbs.csv')
+
+data_transform = transforms.Compose([
+  ResizeSample(size=(256, 256)),
+  ToTensorSample(),
+  NormalizeSample(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+
+trial_meme_dataset_transformed = MemeDataset(
+  csv_file=os.path.join(os.getcwd(), '../data/data1.csv'),
+  image_dir = os.path.join(os.getcwd(), '../data/semeval-2020_trialdata/Meme_images/'),
+    transform=data_transform)
+
+train_meme_dataset_transformed = MemeDataset(
+  csv_file=os.path.join(os.getcwd(), '../data/data_7000_new.csv'),
+  image_dir = os.path.join(os.getcwd(), '../data/memotion_analysis_training_data/data_7000/'),
+    transform=data_transform)
+
+eval_classifier(trial_meme_dataset_transformed)

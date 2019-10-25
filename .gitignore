@@ -111,3 +111,6 @@ venv.bak/
 
 semeval-2020_trialdata/
 memotion_analysis_training_data/
+
+data_7000_textEmbs.csv
+data1_textEmbs.csv

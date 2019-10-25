@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset
 from torchvision import transforms
-from PIL import Image
+from PIL import Image, ImageFile
 import requests
 from io import BytesIO
 
@@ -114,6 +114,7 @@ class MemeDataset(Dataset):
     return len(self.meme_frame)
 
   def __getitem__(self, idx):
+    ImageFile.LOAD_TRUNCATED_IMAGES = True
     if torch.is_tensor(idx):
       idx = idx.tolist()
 

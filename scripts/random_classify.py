@@ -31,6 +31,7 @@ def main():
     transform=data_transform)
 
   evaluate_classification(meme_dataset_transformed=trial_meme_dataset_transformed)
+  evaluate_classification(meme_dataset_transformed=train_meme_dataset_transformed)
 
 def evaluate_classification(meme_dataset_transformed):
   dataloader = DataLoader(dataset=meme_dataset_transformed, batch_size=1,

@@ -19,13 +19,13 @@ def main():
     NormalizeSample(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
   
   trial_meme_dataset_transformed = MemeDataset(
-    csv_file=os.path.join(os.getcwd(), 'data/data1.csv'),
+    csv_file=os.path.join(os.getcwd(), '../data/data1.csv'),
     image_dir=os.path.join(os.path.expanduser('~'),
       'Downloads/semeval-2020_trialdata/Meme_images/'),
     transform=data_transform)
 
   train_meme_dataset_transformed = MemeDataset(
-    csv_file=os.path.join(os.getcwd(), 'data/data_7000_new.csv'),
+    csv_file=os.path.join(os.getcwd(), '../data/data_7000_new.csv'),
     image_dir=os.path.join(os.path.expanduser('~'),
       'Downloads/memotion_analysis_training_data/data_7000/'),
     transform=data_transform)

@@ -108,3 +108,6 @@ venv.bak/
 
 # .DS_Store on Mac OS
 .DS_Store
+
+semeval-2020_trialdata/
+memotion_analysis_training_data/

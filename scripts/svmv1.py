@@ -75,36 +75,40 @@ class SVM_Classifier:
         return X, y 
 
     def splitData(self, dataset,batch_size):
+        tr_idx = int(0.8*len(dataset)) // batch_size
+        
         dataloader = DataLoader(dataset=dataset, batch_size=batch_size,
             shuffle=False, num_workers=0)
-        X, y = list(),list()
+        X_test, y_test = list(),list()
          
         for i_batch, sample in enumerate(dataloader):
             X_batch, y_batch = self.sample2data(sample,batch_size) 
-            if type(y) == list:
-                X = np.asarray(X_batch)
-                y = np.asarray(y_batch)
-            else:
-                X = np.append(X,X_batch, axis=0)
-                y = np.append(y,y_batch, axis=0)
-        X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42)
-        print(y_train.shape,y_test.shape)
-        return X_train, y_train, X_test,y_test
+            if i_batch > tr_idx:
+                if type(y) == list:
+                    X_test = np.asarray(X_batch)
+                    y_test = np.asarray(y_batch)
+                else:
+                    X_test = np.append(X,X_batch, axis=0)
+                    y_test = np.append(y,y_batch, axis=0)
+            else: 
+                self.train(X_batch,y_batch)
+        # X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42)
+        # print(y_train.shape,y_test.shape)
+        return X_test,y_test
 
-    def train(self, X_train, y_train, batch_size):
+    def train(self, X_train, y_train):
         self.svclassifier.fit(X_train, y_train)
 
     def test(self, X_test, y_test):
         y_pred = self.svclassifier.predict(X_test)
-        print(confusion_matrix(y_batch,y_pred))
-        print(classification_report(y_batch,y_pred))
+        print(confusion_matrix(y_test,y_pred))
+        print(classification_report(y_test,y_pred))
         
 if __name__ == "__main__":
     svm = SVM_Classifier('linear','humour_int')
     svm.readTxtEmb("semeval-2020_trialdata/data1_textEmbs.csv")
     dataset = svm.readData('trial')
-    X_train, y_train, X_test,y_test = svm.splitData(dataset,32)
-    svm.train(X_train,y_train,32)
+    X_test,y_test = svm.splitData(dataset,32)
     svm.test(X_test,y_test)
     
         

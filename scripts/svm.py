@@ -88,7 +88,7 @@ class SVM_Classifier:
                 X = np.append(X,X_batch, axis=0)
                 y = np.append(y,y_batch, axis=0)
         X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42)
-        print(y_train.shape,y_test.shape)
+
         return X_train, y_train, X_test,y_test
 
     def train(self, X_train, y_train, batch_size):

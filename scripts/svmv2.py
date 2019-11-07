@@ -2,29 +2,29 @@ import os
 import re
 import numpy as np
 import matplotlib.pyplot as plt
+
 import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms, utils
+
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
+from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 
 from data.meme_dataset import MemeDataset
 from data.meme_transforms import ResizeSample, ToTensorSample, NormalizeSample
 
 class SVM_Classifier:
-    def __init__(self, _kernel, _ytype, _degree=None):
-        # (kernal, degree) can be: ('linear'), ('poly', 6), ('rbf'), ('sigmoid')
+    def __init__(self, _kernel, _ytype):
+        # kernal can be: ('linear'), ('poly'), ('rbf'), ('sigmoid')
         self.kernel = _kernel
-        self.degree = _degree
         self.ytype = _ytype
         self.txt_emb_dict = dict()
         self.label_name_dict = {'humour_int':0,'sarcasm_int':1,'offensive_int':2,'motivational_int':3,'overall_sentiment_int':4}
-        if _degree != None:
-            self.svclassifier = SVC(kernel=_kernel, degree=_degree)
-        else:
-            self.svclassifier = SVC(kernel = _kernel)
+        self.svclassifier = SGDClassifier(loss="hinge",warm_start=True)
+        # self.svclassifier = SVC(kernel=_kernel)
     
     def readData(self, datalabel):
         data_transform = transforms.Compose([
@@ -93,19 +93,24 @@ class SVM_Classifier:
         return X_test,y_test
 
     def train(self, X_train, y_train):
+        # print(X_train.shape)
+        # print(y_train.shape)
         self.svclassifier.fit(X_train, y_train)
 
     def test(self, X_test, y_test):
-        y_pred = self.svclassifier.predict(X_test)
-        print(confusion_matrix(y_test,y_pred))
-        print(classification_report(y_test,y_pred))
+        # print(X_test.shape)
+        # print(y_test.shape)
+        print(self.svclassifier.score(X_test,y_test))
+        # y_pred = self.svclassifier.predict(X_test)
+        # print(confusion_matrix(y_test,y_pred))
+        # print(classification_report(y_test,y_pred))
         
 if __name__ == "__main__":
     svm = SVM_Classifier('linear','offensive_int')
     svm.readTxtEmb("memotion_analysis_training_data/data_7000_textEmbs.csv")
     # svm.readTxtEmb("semeval-2020_trialdata/data1_textEmbs.csv")
     dataset = svm.readData('train')
-    X_test,y_test = svm.splitData(dataset,200)
+    X_test,y_test = svm.splitData(dataset,256)
     svm.test(X_test,y_test)
     
         

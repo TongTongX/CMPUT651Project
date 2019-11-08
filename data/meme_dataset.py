@@ -59,7 +59,9 @@ class MemeDataset(Dataset):
       | ~self.meme_frame['offensive'].isin(VALID_LABELS['offensive'])
       | ~self.meme_frame['motivational'].isin(VALID_LABELS['motivational'])
       | ~self.meme_frame['overall_sentiment'].isin(
-        VALID_LABELS['overall_sentiment'])].index
+        VALID_LABELS['overall_sentiment'])
+      | (self.meme_frame['ocr_extracted_text'].isnull()
+        & self.meme_frame['corrected_text'].isnull())].index
     # invalid_url_row_indices = self.get_invalid_url_row_indices()
     # invalid_row_indices = invalid_row_indices.append(invalid_url_row_indices)
     invalid_row_indices = invalid_row_indices.drop_duplicates()
@@ -69,8 +71,12 @@ class MemeDataset(Dataset):
     self.meme_frame.reset_index(drop=True, inplace=True)
     self.meme_frame['ocr_extracted_text'] = (
       self.meme_frame['ocr_extracted_text'].astype('str'))
+    self.meme_frame['ocr_extracted_text'] = (
+      self.meme_frame['ocr_extracted_text'].str.lower())
     self.meme_frame['corrected_text'] = (
       self.meme_frame['corrected_text'].astype('str'))
+    self.meme_frame['corrected_text'] = (
+      self.meme_frame['corrected_text'].str.lower())
     print('len(self.meme_frame): {}'.format(len(self.meme_frame)))
     assert frame_len_before_drop - invalid_len == len(self.meme_frame)
     # Add onehot label columns
@@ -133,6 +139,8 @@ class MemeDataset(Dataset):
     # Get textual input.
     ocr_extracted_text = self.meme_frame['ocr_extracted_text'][idx]
     corrected_text = self.meme_frame['corrected_text'][idx]
+    if corrected_text == 'nan':
+      corrected_text = ocr_extracted_text
 
     # Get labels.
     humour_onehot = None
@@ -167,6 +175,18 @@ class MemeDataset(Dataset):
       offensive_int = self.meme_frame['offensive_int'][idx]
       motivational_int = self.meme_frame['motivational_int'][idx]
       overall_sentiment_int = self.meme_frame['overall_sentiment_int'][idx]
+      
+      humour_binary_int = 0 if humour_int == 0 else 1
+      sarcasm_binary_int = 0 if sarcasm_int == 0 else 1
+      offensive_binary_int = 0 if offensive_int == 0 else 1
+      motivational_binary_int = motivational_int
+      # Ternary overall_sentiment_int value.
+      if overall_sentiment_int < 2:
+        overall_sentiment_ternary_int = 0
+      elif overall_sentiment_int > 2:
+        overall_sentiment_ternary_int = 2
+      else:
+        overall_sentiment_ternary_int = 1
       assert isinstance(humour_int, np.int64)
       assert isinstance(sarcasm_int, np.int64)
       assert isinstance(offensive_int, np.int64)
@@ -190,6 +210,11 @@ class MemeDataset(Dataset):
         'offensive_int': offensive_int,
         'motivational_int': motivational_int,
         'overall_sentiment_int': overall_sentiment_int,
+        'humour_binary_int': humour_binary_int,
+        'sarcasm_binary_int': sarcasm_binary_int,
+        'offensive_binary_int': offensive_binary_int,
+        'motivational_binary_int': motivational_binary_int,
+        'overall_sentiment_ternary_int': overall_sentiment_ternary_int,
         }
 
     if self.transform:

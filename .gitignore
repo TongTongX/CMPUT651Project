@@ -109,8 +109,16 @@ venv.bak/
 # .DS_Store on Mac OS
 .DS_Store
 
+# Training images
 semeval-2020_trialdata/
 memotion_analysis_training_data/
 
+# Embeddings
 data_7000_textEmbs.csv
 data1_textEmbs.csv
+
+# GloVe Embeddings
+glove/
+
+# Pretrained sentence encoder
+encoder/

@@ -6,3 +6,4 @@ from . import dataset_script
 from . import transforms_script
 from . import dataloader_script
 from . import random_classify
+from . import training

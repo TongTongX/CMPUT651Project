@@ -21,9 +21,9 @@ def show_batch(sample_batched):
 
 def main():
   trial_meme_dataset_transformed = MemeDataset(
-    csv_file=os.path.join(os.getcwd(), 'data/data1.csv'),
-    image_dir=os.path.join(os.path.expanduser('~'),
-      'Downloads/semeval-2020_trialdata/Meme_images/'),
+    csv_file=os.path.join(os.getcwd(), '../data/data1.csv'),
+    image_dir=os.path.join(os.getcwd(),
+      '../data/semeval-2020_trialdata/Meme_images/'),
     transform=transforms.Compose(
       [ResizeSample(size=(256, 256)),
       ToTensorSample(),

@@ -1,3 +1,6 @@
 [submodule "tumblr-emotions"]
 	path = tumblr-emotions
 	url = git@github.com:anthonyhu/tumblr-emotions.git
+[submodule "InferSent"]
+	path = InferSent
+	url = git@github.com:facebookresearch/InferSent.git

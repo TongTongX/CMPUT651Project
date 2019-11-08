@@ -51,3 +51,23 @@ $ pip install -e .
   * overall_sentiment_int: 49.04%
 ### 3. SVM - Poly kernel, 16 degree:
   * overall_sentiment_int: 48.07%
+### Logistic Regression: 
+#### Task 1:
+#### * Trial:
+  * humour_int: 30.3%
+  * sarcasm_int: 38.6%
+  * offensive_int: 35.3%
+  * motivational_int: 56.0%
+  * overall_sentiment_int: 32.6%  
+#### * Train:
+  * humour_int: %
+  * sarcasm_int: %
+  * offensive_int: %
+  * motivational_int: %
+  * overall_sentiment_int: %  
+  * overall_sentiment_int: 39.4%
+#### Task 2:
+#### * Trial:
+  * acc: 12.3%
+#### * Train:
+  * acc: %

@@ -21,6 +21,6 @@ $ pip install -e .
   * sarcasm_int: 53.8%
   * offensive_int: 42.3%
   * motivational_int: 65.4%
-  * overall_sentiment_int: 46.15%
+  * overall_sentiment_int: 49.04%
 ### 3. SVM - Poly kernel, 16 degree:
   * overall_sentiment_int: 48.07%

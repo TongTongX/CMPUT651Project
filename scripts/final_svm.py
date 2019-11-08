@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import os
 import re
 import numpy as np
@@ -56,7 +52,7 @@ class SVM_Classifier:
             line = line[:-1]
             row = re.split(self.PATTERN,line)
             imgname = row[0]
-            emb = row[10:]
+            emb = row[-768:]
             emb[0],emb[-1] = emb[0][1:], emb[-1][:-1]
             emb = [float(x) for x in emb]
             self.txt_emb_dict[imgname] = emb
@@ -75,23 +71,32 @@ class SVM_Classifier:
         return X, y 
 
     def splitData(self, dataset,batch_size):
+        tr_idx = int(0.8*len(dataset)) // batch_size
+        
         dataloader = DataLoader(dataset=dataset, batch_size=batch_size,
             shuffle=False, num_workers=0)
-        X, y = list(),list()
-         
+        X_test, y_test = list(),list()
+        start = False
         for i_batch, sample in enumerate(dataloader):
             X_batch, y_batch = self.sample2data(sample,batch_size) 
-            if type(y) == list:
-                X = np.asarray(X_batch)
-                y = np.asarray(y_batch)
-            else:
-                X = np.append(X,X_batch, axis=0)
-                y = np.append(y,y_batch, axis=0)
-        X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42)
+            if i_batch > tr_idx:
+                if type(y_test) == list:
+                    X_test = np.asarray(X_batch)
+                    y_test = np.asarray(y_batch)
+                else:
+                    X_test = np.append(X_test,X_batch, axis=0)
+                    y_test = np.append(y_test,y_batch, axis=0)
+            else: 
+                if start:
+                    print(self.svclassifier.score(X_batch,y_batch))
+                else:
+                    start = True
+                self.train(X_batch,y_batch)
+        # X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42)
+        # print(y_train.shape,y_test.shape)
+        return X_test,y_test
 
-        return X_train, y_train, X_test,y_test
-
-    def train(self, X_train, y_train, batch_size):
+    def train(self, X_train, y_train):
         self.svclassifier.fit(X_train, y_train)
 
     def test(self, X_test, y_test):
@@ -101,11 +106,16 @@ class SVM_Classifier:
         print(self.svclassifier.score(X_test,y_test))
         
 if __name__ == "__main__":
-    svm = SVM_Classifier('linear','humour_int')
-    svm.readTxtEmb("semeval-2020_trialdata/data1_textEmbs.csv")
-    dataset = svm.readData('trial')
-    X_train, y_train, X_test,y_test = svm.splitData(dataset,128)
-    svm.train(X_train,y_train,128)
-    svm.test(X_test,y_test)
+    label_name_dict = {'humour_int':0,'sarcasm_int':1,'offensive_int':2,'motivational_int':3,'overall_sentiment_int':4}
+    # label_name_dict = {'motivational_int':3,'overall_sentiment_int':4}
+    for key in label_name_dict.keys():
+        print(key)
+        svm = SVM_Classifier('linear',key,_degree=16)
+        # svm.readTxtEmb("memotion_analysis_training_data/data_7000_textEmbs.csv")
+        svm.readTxtEmb("semeval-2020_trialdata/data1_textEmbs.csv")
+        # dataset = svm.readData('train')
+        dataset = svm.readData('trial')
+        X_test,y_test = svm.splitData(dataset,128)
+        svm.test(X_test,y_test)
     
         

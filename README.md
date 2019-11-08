@@ -7,6 +7,8 @@ CMPUT 651 Project at University of Alberta in Fall 2019
 ```
 $ pip install -e .
 ```
+3. Download pre-trained [GloVe word vectors](https://nlp.stanford.edu/projects/glove/). Place the Common Crawl (840B tokens, 2.2M vocab, cased, 300d vectors, 2.03 GB download) word vectors in `/data/glove/` directory.
+
 ## Baseline Accuracy
 ### Random
 #### * Trial

@@ -65,7 +65,11 @@ class LogisticRegression_MultiLabel:
 
 def getData(samples):
     X = []
-    task1_y = []
+    task1_y_humour = []
+    task1_y_sarcasm = []
+    task1_y_offensive = []
+    task1_y_motivational = []
+    task1_y_overall_sentiment = []
     task2_y = []
 
     for image_n_i in range(len(samples['image_name'])):
@@ -73,7 +77,11 @@ def getData(samples):
         if samples['image_name'][image_n_i] in imgname_textEmbs:
             X.append(list(torch.flatten(samples['image'][image_n_i]).numpy()) + list(imgname_textEmbs[samples['image_name'][image_n_i]]))
 
-            task1_y.append(samples['overall_sentiment_int'][image_n_i])
+            task1_y_humour.append(samples['humour_int'][image_n_i])
+            task1_y_sarcasm.append(samples['sarcasm_int'][image_n_i])
+            task1_y_offensive.append(samples['offensive_int'][image_n_i])
+            task1_y_motivational.append(samples['motivational_int'][image_n_i])
+            task1_y_overall_sentiment.append(samples['overall_sentiment_int'][image_n_i])
 
             sample_2y = []
 
@@ -86,10 +94,15 @@ def getData(samples):
             task2_y.append(sample_2y)
 
     X_arr = np.asarray(X)
-    task1_y_arr = np.asarray(task1_y)
+    task1_y_humour_arr = np.asarray(task1_y_humour)
+    task1_y_sarcasm_arr = np.asarray(task1_y_sarcasm)
+    task1_y_offensive_arr = np.asarray(task1_y_offensive)
+    task1_y_motivational_arr = np.asarray(task1_y_motivational)
+    task1_y_overall_sentiment_arr = np.asarray(task1_y_overall_sentiment)
+
     task2_y_arr = np.asarray(task2_y)
 
-    return X_arr, task1_y_arr, task2_y_arr
+    return X_arr, task1_y_humour_arr, task1_y_sarcasm_arr, task1_y_offensive_arr, task1_y_motivational_arr, task1_y_overall_sentiment_arr, task2_y_arr
 
 def eval_classifier(meme_dataset_transformed, imgname_textEmbs):
     batchSize = 700
@@ -102,45 +115,97 @@ def eval_classifier(meme_dataset_transformed, imgname_textEmbs):
     training_batch_num = int(0.9*len(meme_dataset_transformed)) // batchSize
 
     train_X_arr = None
-    train_task1_y_arr = None
+    train_task1_y_humour_arr = None
+    train_task1_y_sarcasm_arr = None
+    train_task1_y_offensive_arr = None
+    train_task1_y_motivational_arr = None
+    train_task1_y_overall_sentiment_arr = None
     train_task2_y_arr = None
 
     test_X_arr = []
-    test_task1_y_arr = []
+    test_task1_y_humour_arr = []
+    test_task1_y_sarcasm_arr = []
+    test_task1_y_offensive_arr = []
+    test_task1_y_motivational_arr = []
+    test_task1_y_overall_sentiment_arr = []
     test_task2_y_arr = []
 
-    lr_multiclass_classifier = LogisticRegression_MultiClass()
+    lr_multiclass_humour_classifier = LogisticRegression_MultiClass()
+    lr_multiclass_sarcasm_classifier = LogisticRegression_MultiClass()
+    lr_multiclass_offensive_classifier = LogisticRegression_MultiClass()
+    lr_multiclass_motivational_classifier = LogisticRegression_MultiClass()
+    lr_multiclass_overall_sentiment_classifier = LogisticRegression_MultiClass()
 
     lr_multilabel_classifier = LogisticRegression_MultiLabel()
 
     for i_batch, sample in enumerate(dataloader):
         if i_batch < training_batch_num:
             # Partial fit
-            X_arr, task1_y_arr, task2_y_arr = getData(sample)
+            X_arr, task1_y_humour_arr, task1_y_sarcasm_arr, task1_y_offensive_arr, task1_y_motivational_arr, task1_y_overall_sentiment_arr, task2_y_arr = getData(sample)
 
-            lr_multiclass_classifier.fit(X_arr, task1_y_arr)
+            lr_multiclass_humour_classifier.fit(X_arr, task1_y_humour_arr)
+            lr_multiclass_sarcasm_classifier.fit(X_arr, task1_y_sarcasm_arr)
+            lr_multiclass_offensive_classifier.fit(X_arr, task1_y_offensive_arr)
+            lr_multiclass_motivational_classifier.fit(X_arr, task1_y_motivational_arr)
+            lr_multiclass_overall_sentiment_classifier.fit(X_arr, task1_y_overall_sentiment_arr)
 
             lr_multilabel_classifier.fit(X_arr, task2_y_arr)
 
             train_X_arr = X_arr
-            train_task1_y_arr = task1_y_arr
+            train_task1_y_humour_arr = task1_y_humour_arr
+            train_task1_y_sarcasm_arr = task1_y_sarcasm_arr
+            train_task1_y_offensive_arr = task1_y_offensive_arr
+            train_task1_y_motivational_arr = task1_y_motivational_arr
+            train_task1_y_overall_sentiment_arr = task1_y_overall_sentiment_arr
             train_task2_y_arr = task2_y_arr
         else:
-            X_arr, task1_y_arr, task2_y_arr = getData(sample)
+            X_arr, task1_y_humour_arr, task1_y_sarcasm_arr, task1_y_offensive_arr, task1_y_motivational_arr, task1_y_overall_sentiment_arr, task2_y_arr = getData(sample)
 
             test_X_arr += list(X_arr)
-            test_task1_y_arr += list(task1_y_arr)
+            test_task1_y_humour_arr += list(task1_y_humour_arr)
+            test_task1_y_sarcasm_arr += list(task1_y_sarcasm_arr)
+            test_task1_y_offensive_arr += list(task1_y_offensive_arr)
+            test_task1_y_motivational_arr += list(task1_y_motivational_arr)
+            test_task1_y_overall_sentiment_arr += list(task1_y_overall_sentiment_arr)
             test_task2_y_arr += list(task2_y_arr)
 
     test_X_arr = np.asarray(test_X_arr)
-    test_task1_y_arr = np.asarray(test_task1_y_arr)
+    test_task1_y_humour_arr = np.asarray(test_task1_y_humour_arr)
+    test_task1_y_sarcasm_arr = np.asarray(test_task1_y_sarcasm_arr)
+    test_task1_y_offensive_arr = np.asarray(test_task1_y_offensive_arr)
+    test_task1_y_motivational_arr = np.asarray(test_task1_y_motivational_arr)
+    test_task1_y_overall_sentiment_arr = np.asarray(test_task1_y_overall_sentiment_arr)
     test_task2_y_arr = np.asarray(test_task2_y_arr)
 
-    task1_train_acc = lr_multiclass_classifier.cal_accuracy(train_X_arr, train_task1_y_arr)
-    task1_test_acc = lr_multiclass_classifier.cal_accuracy(test_X_arr, test_task1_y_arr)
+    task1_humour_train_acc = lr_multiclass_humour_classifier.cal_accuracy(train_X_arr, train_task1_y_humour_arr)
+    task1_humour_test_acc = lr_multiclass_humour_classifier.cal_accuracy(test_X_arr, test_task1_y_humour_arr)
 
-    print("task1 training accuracy", task1_train_acc)
-    print("task1 testing accuracy", task1_test_acc)
+    task1_sarcasm_train_acc = lr_multiclass_sarcasm_classifier.cal_accuracy(train_X_arr, train_task1_y_sarcasm_arr)
+    task1_sarcasm_test_acc = lr_multiclass_sarcasm_classifier.cal_accuracy(test_X_arr, test_task1_y_sarcasm_arr)
+
+    task1_offensive_train_acc = lr_multiclass_offensive_classifier.cal_accuracy(train_X_arr, train_task1_y_offensive_arr)
+    task1_offensive_test_acc = lr_multiclass_offensive_classifier.cal_accuracy(test_X_arr, test_task1_y_offensive_arr)
+
+    task1_motivational_train_acc = lr_multiclass_motivational_classifier.cal_accuracy(train_X_arr, train_task1_y_motivational_arr)
+    task1_motivational_test_acc = lr_multiclass_motivational_classifier.cal_accuracy(test_X_arr, test_task1_y_motivational_arr)
+
+    task1_overall_sentiment_train_acc = lr_multiclass_overall_sentiment_classifier.cal_accuracy(train_X_arr, train_task1_y_overall_sentiment_arr)
+    task1_overall_sentiment_test_acc = lr_multiclass_overall_sentiment_classifier.cal_accuracy(test_X_arr, test_task1_y_overall_sentiment_arr)
+
+    print("task1 humour training accuracy", task1_humour_train_acc)
+    print("task1 humour testing accuracy", task1_humour_test_acc)
+
+    print("task1 sarcasm training accuracy", task1_sarcasm_train_acc)
+    print("task1 sarcasm testing accuracy", task1_sarcasm_test_acc)
+
+    print("task1 offensive training accuracy", task1_offensive_train_acc)
+    print("task1 offensive testing accuracy", task1_offensive_test_acc)
+
+    print("task1 motivational training accuracy", task1_motivational_train_acc)
+    print("task1 motivational testing accuracy", task1_motivational_test_acc)
+
+    print("task1 overall_sentiment training accuracy", task1_overall_sentiment_train_acc)
+    print("task1 overall_sentiment testing accuracy", task1_overall_sentiment_test_acc)
 
     task2_train_acc = lr_multilabel_classifier.cal_accuracy(train_X_arr, train_task2_y_arr)
     task2_test_acc = lr_multilabel_classifier.cal_accuracy(test_X_arr, test_task2_y_arr)

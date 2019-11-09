@@ -54,20 +54,19 @@ $ pip install -e .
 ### Logistic Regression: 
 #### Task 1:
 #### * Trial:
-  * humour_int: 30.3%
-  * sarcasm_int: 38.6%
-  * offensive_int: 35.3%
-  * motivational_int: 56.0%
-  * overall_sentiment_int: 32.6%  
+  * humour_int: 29.0%
+  * sarcasm_int: 38.3%
+  * offensive_int: 33.0%
+  * motivational_int: 54.0%
+  * overall_sentiment_int: 31.0%  
 #### * Train:
-  * humour_int: %
-  * sarcasm_int: %
-  * offensive_int: %
-  * motivational_int: %
-  * overall_sentiment_int: %  
-  * overall_sentiment_int: 39.4%
+  * humour_int: 27.8%
+  * sarcasm_int: 34.1%
+  * offensive_int: 31.1%
+  * motivational_int: 57.2%
+  * overall_sentiment_int: 33.2%  
 #### Task 2:
 #### * Trial:
-  * acc: 12.3%
+  * acc: 14.6%
 #### * Train:
-  * acc: %
+  * acc: 12.3%

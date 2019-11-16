@@ -53,11 +53,11 @@ class DeepSentimentFusionModel(nn.Module):
 
         self.encode_dim = 4096
 
-        # Acc: 0.3
+        # Acc: 
 
         # Reduce the feature len of img and text embs
-        self.img_f_dim = 128
-        self.text_emb_dim = 128
+        self.img_f_dim = 512
+        self.text_emb_dim = 512
 
         self.fc_img = nn.Linear(self.num_ftrs, self.img_f_dim, bias=False)
         self.fc_text = nn.Linear(self.encode_dim, self.text_emb_dim, bias=False)

@@ -13,10 +13,74 @@ from data.meme_transforms import ResizeSample, ToTensorSample, NormalizeSample
 
 from models.deep_sentiment_att import DeepSentimentAttentionModel
 from models.deep_sentiment_fusion import DeepSentimentFusionModel
+from models.deep_sentiment_svm import DeepSentimentSVM_Model
 from models.model_utils import *
+
+from sklearn.svm import SVC
 
 import time
 import copy
+
+
+def train_svm_model(model, dataloaders, criterion, optimizer, num_epochs=25,
+    is_inception=False, device=torch.device('cpu'), target_label='overall_sentiment_int'):
+    since = time.time()
+
+    val_acc_history = []
+
+    best_model_wts = copy.deepcopy(model.state_dict())
+    best_acc = 0.0
+
+    svm = SVC(kernel='rbf', gamma='scale')
+
+    for epoch in range(num_epochs):
+        print('Epoch {}/{}'.format(epoch, num_epochs - 1))
+        print('-' * 10)
+
+        # Each epoch has a training and validation phase
+        for phase in ['train', 'val']:
+            if phase == 'train':
+                model.train()  # Set model to training mode
+            else:
+                model.eval()   # Set model to evaluate mode
+
+            running_times = 0
+            running_acc = 0.0
+
+            # Iterate over data.
+            for sample_batch in dataloaders[phase]:
+                image_batch = sample_batch['image'].to(device)
+                corrected_text_batch = sample_batch['corrected_text']
+                sentiment_labels = sample_batch[target_label].to(device)
+
+                concat_features = model(image_batch, corrected_text_batch)
+
+                if phase == 'train':
+                    svm.fit(concat_features, sentiment_labels)
+
+                running_times += 1
+                running_acc += svm.score(concat_features, sentiment_labels)
+
+            epoch_acc = running_acc / running_times
+
+            print('{} Avg Acc: {:.4f}'.format(phase, epoch_acc))
+
+            # deep copy the model
+            if phase == 'val' and epoch_acc > best_acc:
+                best_acc = epoch_acc
+                best_model_wts = copy.deepcopy(model.state_dict())
+            if phase == 'val':
+                val_acc_history.append(epoch_acc)
+
+        print()
+
+    time_elapsed = time.time() - since
+    print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+    print('Best val Acc: {:4f}'.format(best_acc))
+
+    # load best model weights
+    model.load_state_dict(best_model_wts)
+    return model, val_acc_history
 
 
 def get_dataloaders(data_path, img_path, batch_size, split_seq):
@@ -60,17 +124,18 @@ def main():
     train_data_path = '../data/data_7000_new.csv'
     train_img_path = '../data/memotion_analysis_training_data/data_7000/'
 
-    dataloaders_dict = get_dataloaders(trial_data_path, trial_img_path, 4, [0.8, 0.2])
+    dataloaders_dict = get_dataloaders(trial_data_path, trial_img_path, 128, [0.8, 0.2])
 
     # Detect if we have a GPU available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     deepsentatt_config = {
         'num_classes': 5, # negative, positive, neutral
-        'batch_size': 4, 'vocab_size': 400000, 'embedding_dim': 300}
+        'batch_size': 128, 'vocab_size': 400000, 'embedding_dim': 300}
     # DeepSentimentAttentionModel
     # DeepSentimentFusionModel
-    deepsentatt_model = DeepSentimentFusionModel(**deepsentatt_config)
+    # DeepSentimentSVM_Model
+    deepsentatt_model = DeepSentimentSVM_Model(**deepsentatt_config)
     # Send the model to GPU
     deepsentatt_model = deepsentatt_model.to(device)
 
@@ -99,8 +164,10 @@ def main():
     criterion = nn.CrossEntropyLoss()
 
     # Train and evaluate
-    deepsentatt_model, hist = train_model(model=deepsentatt_model, dataloaders=dataloaders_dict,
-        criterion=criterion, optimizer=optimizer_ft, num_epochs=1, is_inception=True)
+    # deepsentatt_model, hist = train_model(model=deepsentatt_model, dataloaders=dataloaders_dict,
+    #     criterion=criterion, optimizer=optimizer_ft, num_epochs=20, is_inception=True)
+    deepsentatt_model, hist = train_svm_model(model=deepsentatt_model, dataloaders=dataloaders_dict,
+        criterion=criterion, optimizer=optimizer_ft, num_epochs=20, is_inception=True)
 
 
 main()

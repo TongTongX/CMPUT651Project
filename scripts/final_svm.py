@@ -74,7 +74,7 @@ class SVM_Classifier:
         tr_idx = int(0.8*len(dataset)) // batch_size
         
         dataloader = DataLoader(dataset=dataset, batch_size=batch_size,
-            shuffle=False, num_workers=0)
+            shuffle=True, num_workers=0)
         X_test, y_test = list(),list()
         start = False
         for i_batch, sample in enumerate(dataloader):
@@ -88,7 +88,8 @@ class SVM_Classifier:
                     y_test = np.append(y_test,y_batch, axis=0)
             else: 
                 if start:
-                    print(self.svclassifier.score(X_batch,y_batch))
+                    # print(self.svclassifier.score(X_batch,y_batch))
+                    pass
                 else:
                     start = True
                 self.train(X_batch,y_batch)
@@ -103,19 +104,26 @@ class SVM_Classifier:
         # y_pred = self.svclassifier.predict(X_test)
         # print(confusion_matrix(y_test,y_pred))
         # print(classification_report(y_test,y_pred))
-        print(self.svclassifier.score(X_test,y_test))
+        score = self.svclassifier.score(X_test,y_test)
+        print(score)
+        return score
         
 if __name__ == "__main__":
     label_name_dict = {'humour_int':0,'sarcasm_int':1,'offensive_int':2,'motivational_int':3,'overall_sentiment_int':4}
     # label_name_dict = {'motivational_int':3,'overall_sentiment_int':4}
+    # label_name_dict = {'overall_sentiment_int':4}
     for key in label_name_dict.keys():
         print(key)
-        svm = SVM_Classifier('linear',key,_degree=16)
-        # svm.readTxtEmb("memotion_analysis_training_data/data_7000_textEmbs.csv")
-        svm.readTxtEmb("semeval-2020_trialdata/data1_textEmbs.csv")
-        # dataset = svm.readData('train')
-        dataset = svm.readData('trial')
-        X_test,y_test = svm.splitData(dataset,128)
-        svm.test(X_test,y_test)
+        score_tot = 0
+        for j in range(1):
+            svm = SVM_Classifier('rbf',key,_degree=16)
+            # svm.readTxtEmb("memotion_analysis_training_data/data_7000_textEmbs.csv")
+            svm.readTxtEmb("semeval-2020_trialdata/data1_textEmbs.csv")
+            # dataset = svm.readData('train')
+            dataset = svm.readData('trial')
+            X_test,y_test = svm.splitData(dataset,128)
+            score = svm.test(X_test,y_test)
+            score_tot+=score
+        # print(score_tot)
     
         

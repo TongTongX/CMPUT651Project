@@ -122,3 +122,6 @@ glove/
 
 # Pretrained sentence encoder
 encoder/
+
+fairseq
+roberta.large

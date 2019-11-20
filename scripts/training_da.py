@@ -124,18 +124,20 @@ def main():
     train_data_path = '../data/data_7000_new.csv'
     train_img_path = '../data/memotion_analysis_training_data/data_7000/'
 
-    dataloaders_dict = get_dataloaders(trial_data_path, trial_img_path, 128, [0.8, 0.2])
+    batch_size = 64
+
+    dataloaders_dict = get_dataloaders(trial_data_path, trial_img_path, batch_size, [0.8, 0.2])
 
     # Detect if we have a GPU available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     deepsentatt_config = {
         'num_classes': 5, # negative, positive, neutral
-        'batch_size': 128, 'vocab_size': 400000, 'embedding_dim': 300}
+        'batch_size': batch_size, 'vocab_size': 400000, 'embedding_dim': 300}
     # DeepSentimentAttentionModel
     # DeepSentimentFusionModel
     # DeepSentimentSVM_Model
-    deepsentatt_model = DeepSentimentSVM_Model(**deepsentatt_config)
+    deepsentatt_model = DeepSentimentAttentionModel(**deepsentatt_config)
     # Send the model to GPU
     deepsentatt_model = deepsentatt_model.to(device)
 
@@ -164,10 +166,10 @@ def main():
     criterion = nn.CrossEntropyLoss()
 
     # Train and evaluate
-    # deepsentatt_model, hist = train_model(model=deepsentatt_model, dataloaders=dataloaders_dict,
+    deepsentatt_model, hist = train_model(model=deepsentatt_model, dataloaders=dataloaders_dict,
+        criterion=criterion, optimizer=optimizer_ft, num_epochs=5, is_inception=True)
+    # deepsentatt_model, hist = train_svm_model(model=deepsentatt_model, dataloaders=dataloaders_dict,
     #     criterion=criterion, optimizer=optimizer_ft, num_epochs=20, is_inception=True)
-    deepsentatt_model, hist = train_svm_model(model=deepsentatt_model, dataloaders=dataloaders_dict,
-        criterion=criterion, optimizer=optimizer_ft, num_epochs=20, is_inception=True)
 
 
 main()

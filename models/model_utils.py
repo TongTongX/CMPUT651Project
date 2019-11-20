@@ -1,4 +1,4 @@
-from __future__ import print_function 
+from __future__ import print_function
 from __future__ import division
 
 import torch
@@ -17,13 +17,17 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25,
     since = time.time()
 
     val_acc_history = []
-    
+
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
+
+    LOG_FILE = open('../LOG', 'w')
 
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch, num_epochs - 1))
         print('-' * 10)
+
+        LOG_FILE.write('Epoch ' + str(epoch) + '/' + str(num_epochs - 1) + '\n')
 
         # Each epoch has a training and validation phase
         for phase in ['train', 'val']:
@@ -35,8 +39,15 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25,
             running_loss = 0.0
             running_corrects = 0
 
+            print('Phase: ', phase)
+
+            batch_idx = 0
+
             # Iterate over data.
             for sample_batch in dataloaders[phase]:
+                print('Batch idx: ', batch_idx)
+                batch_idx += 1
+
                 image_batch = sample_batch['image'].to(device)
                 corrected_text_batch = sample_batch['corrected_text']
                 sentiment_labels = sample_batch[target_label].to(device)
@@ -84,6 +95,8 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25,
 
             print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
 
+            LOG_FILE.write(phase + ' Loss: ' + str(epoch_loss) + ' Acc: ' + str(epoch_acc) + '\n')
+
             # deep copy the model
             if phase == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc
@@ -96,6 +109,9 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25,
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     print('Best val Acc: {:4f}'.format(best_acc))
+
+    LOG_FILE.write('Training complete in ' + str(time_elapsed // 60) + 'm ' + str(time_elapsed % 60) + 's' + '\n')
+    LOG_FILE.write('Best val Acc: ' + str(best_acc) + '\n')
 
     # load best model weights
     model.load_state_dict(best_model_wts)
@@ -117,7 +133,7 @@ def initialize_model(num_classes, feature_extract, feature_only,
   use_pretrained=True):
     # Initialize these variables which will be set in this if statement. Each of these
     #   variables is model specific.
-    """ Inception v3 
+    """ Inception v3
     Be careful, expects (299,299) sized images and has auxiliary output
     """
     model_ft = models.inception_v3(pretrained=use_pretrained)
@@ -131,18 +147,18 @@ def initialize_model(num_classes, feature_extract, feature_only,
     if feature_only:
         model_ft.fc = nn.Identity()
     input_size = 299
-    
+
     return model_ft, input_size
 
 
 def load_embedding_weights_glove(text_dir, emb_dir, filename):
     """Load the word embedding weights from a pre-trained model.
-    
+
     Parameters:
         text_dir: The directory containing the text model.
         emb_dir: The subdirectory containing the weights.
         filename: The name of that text file.
-        
+
     Returns:
         vocabulary: A list containing the words in the vocabulary.
         embedding: A numpy array of the weights.

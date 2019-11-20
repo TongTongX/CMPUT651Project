@@ -53,7 +53,7 @@ class DeepSentimentFusionModel(nn.Module):
 
         self.encode_dim = 4096
 
-        # Acc: 
+        # Acc: 0.41 best from 20 epoch
 
         # Reduce the feature len of img and text embs
         self.img_f_dim = 512

@@ -6,6 +6,9 @@ CMPUT 651 Project at University of Alberta in Fall 2019
 2. Set up the project.
 ```
 $ pip install -e .
+$ pip install torchtext
+$ pip install spacy
+$ python3 -m spacy download en
 ```
 3. Download pre-trained [GloVe word vectors](https://nlp.stanford.edu/projects/glove/). Place the Common Crawl (840B tokens, 2.2M vocab, cased, 300d vectors, 2.03 GB download) word vectors in `/data/glove/` directory.
 

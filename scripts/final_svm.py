@@ -70,11 +70,15 @@ class SVM_Classifier:
         X = np.append(flat_img_list, txt_list, axis=1)
         return X, y 
 
-    def splitData(self, dataset,batch_size):
+    def trainAndSplitData(self, dataset,batch_size):
         tr_idx = int(0.8*len(dataset)) // batch_size
         
         dataloader = DataLoader(dataset=dataset, batch_size=batch_size,
             shuffle=True, num_workers=0)
+
+        # print(list(dataloader)[0])
+        # input()
+
         X_test, y_test = list(),list()
         start = False
         for i_batch, sample in enumerate(dataloader):
@@ -121,7 +125,7 @@ if __name__ == "__main__":
             svm.readTxtEmb("semeval-2020_trialdata/data1_textEmbs.csv")
             # dataset = svm.readData('train')
             dataset = svm.readData('trial')
-            X_test,y_test = svm.splitData(dataset,128)
+            X_test,y_test = svm.trainAndSplitData(dataset,4)
             score = svm.test(X_test,y_test)
             score_tot+=score
         # print(score_tot)

@@ -122,3 +122,4 @@ glove/
 
 # Pretrained sentence encoder
 encoder/
+.data/

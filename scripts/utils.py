@@ -53,7 +53,7 @@ def sampletxt2data(sample):
     corrected_text = np.asarray(sample['corrected_text'])
 
     for i in range(len(corrected_text)):
-        if corrected_text[i] == "":
+        if corrected_text[i] == " ":
             txtdata[image_name[i]] = ocr_extracted_text[i]
         else:
             txtdata[image_name[i]] = corrected_text[i]

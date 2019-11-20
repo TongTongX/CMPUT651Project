@@ -122,10 +122,7 @@ glove/
 
 # Pretrained sentence encoder
 encoder/
-<<<<<<< HEAD
-.data/
-=======
 
+.data/
 fairseq
 roberta.large
->>>>>>> e6360471ec1682d9963c5e39066ccce17f6eeeec

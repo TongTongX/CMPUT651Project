@@ -1,3 +1,6 @@
+# https://github.com/bentrevett/pytorch-sentiment-analysis/blob/master/4%20-%20Convolutional%20Sentiment%20Analysis.ipynbjfruiequrueryewiuqryiwerqwe
+
+
 import utils as utils
 
 import torch
@@ -46,7 +49,25 @@ if __name__ == "__main__":
                format='csv',
                skip_header=True, 
                fields=tv_datafields).split(0.9)
-    trn, test = trn.split(0.8)
+    trn, tst = trn.split(0.8)
 
-    sentence = trn[0].text
-    print(trn[0].img_name,sentence)
+    # sentence = trn[0].text
+    # print(trn[0].img_name,sentence)
+
+    MAX_VOCAB_SIZE = 25_000
+
+    TEXT.build_vocab(trn, 
+                    max_size = MAX_VOCAB_SIZE, 
+                    vectors = "glove.6B.100d", 
+                    unk_init = torch.Tensor.normal_)
+
+    LABEL.build_vocab(trn)
+
+    BATCH_SIZE = 64
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits(
+        (trn, vld, tst), 
+        batch_size = BATCH_SIZE, 
+        device = device)

@@ -126,3 +126,4 @@ encoder/
 .data/
 fairseq
 roberta.large
+.vector_cache/

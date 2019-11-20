@@ -11,8 +11,8 @@ import numpy as np
 
 import pandas as pd
 
-def reSaveTextData():
-    dataset, batch_num = utils.readData('trial',batch_size=1024)
+def reSaveTextData(in_data, out_data):
+    dataset, batch_num = utils.readData(in_data,batch_size=7002)
     # read all data
     sample = dataset[0]
     text_dict = utils.sampletxt2data(sample)
@@ -22,10 +22,10 @@ def reSaveTextData():
     y_dict,y = utils.sampley2data(sample)
     df = pd.DataFrame(list(zip(img_name, text, list(y[0]),list(y[1]),list(y[2]),list(y[3]),list(y[4]))), 
                columns =['img_name','text', 'Humour','Sarcasm','offensive','Motivational','Overall_Sentiment']) 
-    df.to_csv('merged_txt_trial.csv', sep=',', encoding='utf-8',index=False)
+    df.to_csv(out_data, sep=',', encoding='utf-8',index=False)
 
 if __name__ == "__main__":
-    # reSaveTextData()
+    # reSaveTextData('train','merged_txt_train.csv')
 
     from torchtext.data import Field
     import re

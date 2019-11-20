@@ -78,7 +78,7 @@ def sampley2data(sample, _LABEL_DICT=LABEL_DICT):
 
     for i in range(len(image_name)):
         ydata[image_name[i]] = y[i]
-    return ydata
+    return ydata,y.T
 
 '''
 def readTxtEmb(filename):

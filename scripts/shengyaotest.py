@@ -6,13 +6,23 @@ from torchtext import datasets
 import random
 import numpy as np
 
-if __name__ == "__main__":
-    # dataset, batch_num = utils.readData('trial',batch_size=1024)
-    # # read all data
-    # sample = dataset[0]
-    # text = list(utils.sampletxt2data(sample).values())
+import pandas as pd
+
+def reSaveTextData():
+    dataset, batch_num = utils.readData('trial',batch_size=1024)
+    # read all data
+    sample = dataset[0]
+    text_dict = utils.sampletxt2data(sample)
+    text = list(text_dict.values())
+    img_name = list(text_dict.keys())
     # label_name_dict = {'overall_sentiment_int':4}
-    # y = list(utils.sampley2data(sample,label_name_dict).values())
+    y_dict,y = utils.sampley2data(sample)
+    df = pd.DataFrame(list(zip(img_name, text, list(y[0]),list(y[1]),list(y[2]),list(y[3]),list(y[4]))), 
+               columns =['img_name','text', 'Humour','Sarcasm','offensive','Motivational','Overall_Sentiment']) 
+    df.to_csv('merged_txt_trial.csv', sep=',', encoding='utf-8',index=False)
+
+if __name__ == "__main__":
+    # reSaveTextData()
 
     from torchtext.data import Field
     import re
@@ -24,24 +34,19 @@ if __name__ == "__main__":
     
     from torchtext.data import TabularDataset
 
-    tv_datafields = [("Image_name", LABEL), 
-                    ("Image_URL", None), 
-                    ("OCR_extracted_text",TEXT),
-                    ("corrected_text", TEXT),
+    tv_datafields = [('img_name', TEXT),
+                    ("text",TEXT),
                     ("Humour", LABEL), 
                     ("Sarcasm", LABEL),
                     ("offensive", LABEL), 
                     ("Motivational", LABEL),
-                    ("Overall_Sentiment", LABEL),
-                    ("Basis_of_classification", None)]
+                    ("Overall_Sentiment", LABEL)]
     trn, vld = TabularDataset(
-               path="../data/data1.csv", 
+               path="merged_txt_trial.csv", 
                format='csv',
                skip_header=True, 
                fields=tv_datafields).split(0.9)
     trn, test = trn.split(0.8)
 
-    sentence = trn[0].corrected_text
-    if sentence == ['','']:
-        sentence = trn[0].OCR_extracted_text
-    print(trn[0].Image_name,sentence[:-1])
+    sentence = trn[0].text
+    print(trn[0].img_name,sentence)

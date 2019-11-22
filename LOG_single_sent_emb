@@ -1,0 +1,32 @@
+Epoch 0/9
+train Loss: 1.605426368713379 Acc: tensor(0.3262, dtype=torch.float64)
+val Loss: 1.6019955253601075 Acc: tensor(0.4550, dtype=torch.float64)
+Epoch 1/9
+train Loss: 1.5977484273910523 Acc: tensor(0.4412, dtype=torch.float64)
+val Loss: 1.591583218574524 Acc: tensor(0.4650, dtype=torch.float64)
+Epoch 2/9
+train Loss: 1.5876977634429932 Acc: tensor(0.4400, dtype=torch.float64)
+val Loss: 1.579405770301819 Acc: tensor(0.4650, dtype=torch.float64)
+Epoch 3/9
+train Loss: 1.5761037063598633 Acc: tensor(0.4400, dtype=torch.float64)
+val Loss: 1.566605167388916 Acc: tensor(0.4650, dtype=torch.float64)
+Epoch 4/9
+train Loss: 1.5641659450531007 Acc: tensor(0.4400, dtype=torch.float64)
+val Loss: 1.5522363042831422 Acc: tensor(0.4650, dtype=torch.float64)
+Epoch 5/9
+train Loss: 1.5517691087722778 Acc: tensor(0.4400, dtype=torch.float64)
+val Loss: 1.5375508546829224 Acc: tensor(0.4650, dtype=torch.float64)
+Epoch 6/9
+train Loss: 1.5383797550201417 Acc: tensor(0.4400, dtype=torch.float64)
+val Loss: 1.5211426401138306 Acc: tensor(0.4650, dtype=torch.float64)
+Epoch 7/9
+train Loss: 1.5244309329986572 Acc: tensor(0.4400, dtype=torch.float64)
+val Loss: 1.5060474872589111 Acc: tensor(0.4650, dtype=torch.float64)
+Epoch 8/9
+train Loss: 1.5109361791610718 Acc: tensor(0.4400, dtype=torch.float64)
+val Loss: 1.4913963508605956 Acc: tensor(0.4650, dtype=torch.float64)
+Epoch 9/9
+train Loss: 1.4996551990509033 Acc: tensor(0.4400, dtype=torch.float64)
+val Loss: 1.479619584083557 Acc: tensor(0.4650, dtype=torch.float64)
+Training complete in 71.0m 49.10566711425781s
+Best val Acc: tensor(0.4650, dtype=torch.float64)

@@ -298,6 +298,3 @@ if __name__ == "__main__":
 
     import spacy
     nlp = spacy.load('en')
-
-    predict_sentiment(model, "This film is terrible")
-    predict_sentiment(model, "This film is great")

@@ -12,17 +12,19 @@ import os
 from models.infer_sent import InferSent
 from models.model_utils import *
 
-class DeepSentimentModel(nn.Module):
+class DeepSentimentVanillaModel(nn.Module):
   def __init__(self, *args, **kwargs):
     super().__init__()
     self.num_classes = kwargs['num_classes']
     self.batch_size = kwargs['batch_size']  # 64
     # Pretrained image model
-    self.inception = models.inception_v3(pretrained=True)
+    self.inception = models.googlenet(pretrained=True, aux_logits=True)
     set_parameter_requires_grad(model=self.inception, feature_extracting=True)
     # Handle the auxilary net
-    self.num_ftrs = self.inception.AuxLogits.fc.in_features
-    self.inception.AuxLogits.fc = nn.Linear(self.num_ftrs, self.num_classes)
+    self.num_ftrs = self.inception.aux1.fc2.in_features
+    self.inception.aux1.fc2 = nn.Linear(self.num_ftrs, self.num_classes)
+    self.num_ftrs = self.inception.aux2.fc2.in_features
+    self.inception.aux2.fc2 = nn.Linear(self.num_ftrs, self.num_classes)
     # Handle the primary net
     self.num_ftrs = self.inception.fc.in_features
     print('self.num_ftrs: {}'.format(self.num_ftrs))
@@ -30,7 +32,7 @@ class DeepSentimentModel(nn.Module):
     # Return features before fc layer.
     self.inception.fc = nn.Identity()
     # print('self.inception:\n{}'.format(self.inception))
-    self.image_size = 299
+    self.image_size = 224
 
     # Text model
     self.vocab_size = kwargs['vocab_size']

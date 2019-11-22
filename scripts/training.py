@@ -15,6 +15,7 @@ from data.meme_dataset import MemeDataset
 from data.meme_transforms import ResizeSample, ToTensorSample, NormalizeSample
 
 from models.deep_sentiment import DeepSentimentModel
+from models.deep_sentiment_vanilla import DeepSentimentVanillaModel
 from models.model_utils import *
 
 def show_batch(sample_batch):
@@ -33,7 +34,7 @@ def main():
     image_dir=os.path.join(os.getcwd(),
       '../data/semeval-2020_trialdata/Meme_images/'),
     transform=transforms.Compose(
-      [ResizeSample(size=(299, 299)),
+      [ResizeSample(size=(224, 224)),
       ToTensorSample(),
       NormalizeSample(mean=[0.485, 0.456, 0.406],
         std=[0.229, 0.224, 0.225])]))
@@ -54,7 +55,8 @@ def main():
   deepsent_config = {
     'num_classes': 5, # negative, positive, neutral
     'batch_size': 4, 'vocab_size': 400000, 'embedding_dim': 300}
-  deepsent = DeepSentimentModel(**deepsent_config)
+#   deepsent = DeepSentimentModel(**deepsent_config)
+  deepsent = DeepSentimentVanillaModel(**deepsent_config)
   # Send the model to GPU
   deepsent = deepsent.to(device)
 
@@ -84,7 +86,8 @@ def main():
 
   # Train and evaluate
   deepsent, hist = train_model(model=deepsent, dataloaders=dataloaders_dict,
-    criterion=criterion, optimizer=optimizer_ft, num_epochs=1, is_inception=True)
+    criterion=criterion, optimizer=optimizer_ft, num_epochs=1,
+    is_inception=True, target_label='overall_sentiment_int')
 
 
 '''

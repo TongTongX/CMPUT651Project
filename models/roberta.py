@@ -1,6 +1,6 @@
 # # import torch
 # # roberta = torch.hub.load('pytorch/fairseq', 'roberta.large')
-# # roberta.eval()
+# roberta.eval()
 
 for SPLIT in train dev; do
     python3 -m examples.roberta.multiprocessing_bpe_encoder \
@@ -11,7 +11,7 @@ for SPLIT in train dev; do
         --workers 60 \
         --keep-empty
 done
-
+ 
 fairseq-preprocess \
     --only-source \
     --trainpref "meme/data/train.input0.bpe" \

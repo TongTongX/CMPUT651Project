@@ -132,3 +132,4 @@ fairseq-master/
 roberta.large/
 encoder.json
 vocab.bpe
+data/

@@ -6,6 +6,9 @@ CMPUT 651 Project at University of Alberta in Fall 2019
 2. Set up the project.
 ```
 $ pip install -e .
+$ pip install torchtext
+$ pip install spacy
+$ python3 -m spacy download en
 ```
 3. Download pre-trained [GloVe word vectors](https://nlp.stanford.edu/projects/glove/). Place the Common Crawl (840B tokens, 2.2M vocab, cased, 300d vectors, 2.03 GB download) word vectors in `/data/glove/` directory.
 
@@ -51,3 +54,22 @@ $ pip install -e .
   * overall_sentiment_int: 49.04%
 ### 3. SVM - Poly kernel, 16 degree:
   * overall_sentiment_int: 48.07%
+### Logistic Regression: 
+#### Task 1:
+#### * Trial:
+  * humour_int: 29.0%
+  * sarcasm_int: 38.3%
+  * offensive_int: 33.0%
+  * motivational_int: 54.0%
+  * overall_sentiment_int: 31.0%  
+#### * Train:
+  * humour_int: 27.8%
+  * sarcasm_int: 34.1%
+  * offensive_int: 31.1%
+  * motivational_int: 57.2%
+  * overall_sentiment_int: 33.2%  
+#### Task 2:
+#### * Trial:
+  * acc: 14.6%
+#### * Train:
+  * acc: 12.3%

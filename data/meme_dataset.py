@@ -66,7 +66,7 @@ class MemeDataset(Dataset):
     # invalid_row_indices = invalid_row_indices.append(invalid_url_row_indices)
     invalid_row_indices = invalid_row_indices.drop_duplicates()
     invalid_len = len(invalid_row_indices)
-    print('len(invalid_row_indices): {}'.format(invalid_len))
+    # print('len(invalid_row_indices): {}'.format(invalid_len))
     self.meme_frame.drop(index=invalid_row_indices, inplace=True)
     self.meme_frame.reset_index(drop=True, inplace=True)
     self.meme_frame['ocr_extracted_text'] = (
@@ -77,7 +77,7 @@ class MemeDataset(Dataset):
       self.meme_frame['corrected_text'].astype('str'))
     self.meme_frame['corrected_text'] = (
       self.meme_frame['corrected_text'].str.lower())
-    print('len(self.meme_frame): {}'.format(len(self.meme_frame)))
+    # print('len(self.meme_frame): {}'.format(len(self.meme_frame)))
     assert frame_len_before_drop - invalid_len == len(self.meme_frame)
     # Add onehot label columns
     for label in VALID_LABELS.keys():

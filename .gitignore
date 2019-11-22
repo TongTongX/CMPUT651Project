@@ -122,3 +122,14 @@ glove/
 
 # Pretrained sentence encoder
 encoder/
+
+.data/
+fairseq
+roberta.large
+.vector_cache/
+*.pt
+fairseq-master/
+roberta.large/
+encoder.json
+vocab.bpe
+data/

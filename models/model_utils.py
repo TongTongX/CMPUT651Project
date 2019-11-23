@@ -13,7 +13,7 @@ import os
 import copy
 
 def train_model(model, dataloaders, criterion, optimizer, num_epochs=25,
-    is_inception=False, device=torch.device('cpu'), target_label='overall_sentiment_int'):
+    is_inception=False, device=torch.device('cpu'), target_label='overall_sentiment_ternary_int'):
     since = time.time()
 
     val_acc_history = []

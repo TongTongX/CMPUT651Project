@@ -14,6 +14,7 @@ from data.meme_transforms import ResizeSample, ToTensorSample, NormalizeSample
 from models.deep_sentiment_att import DeepSentimentAttentionModel
 from models.deep_sentiment_fusion import DeepSentimentFusionModel
 from models.deep_sentiment_svm import DeepSentimentSVM_Model
+from models.incept_roberta_att import InceptRobertaAttentionModel
 from models.model_utils import *
 
 from sklearn.svm import SVC
@@ -132,12 +133,13 @@ def main():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     deepsentatt_config = {
-        'num_classes': 5, # negative, positive, neutral
+        'num_classes': 3, # negative, positive, neutral
         'batch_size': batch_size, 'vocab_size': 400000, 'embedding_dim': 300}
     # DeepSentimentAttentionModel
     # DeepSentimentFusionModel
     # DeepSentimentSVM_Model
-    deepsentatt_model = DeepSentimentAttentionModel(**deepsentatt_config)
+    # InceptRobertaAttentionModel
+    deepsentatt_model = InceptRobertaAttentionModel(**deepsentatt_config)
     # Send the model to GPU
     deepsentatt_model = deepsentatt_model.to(device)
 

@@ -53,7 +53,9 @@ class InceptRobertaAttentionModel(nn.Module):
         self.roberta.register_classification_head('new_task', num_classes=self.num_classes)
 
         # Using the attention mechanism on this two embeddings and pass the weighted embedding to the fc
-        self.W_att = nn.Linear(in_features=self.num_classes, out_features=1, bias=False)
+        self.num_att_head = kwargs['att_head_num']
+
+        self.W_att = nn.Linear(in_features=self.num_classes, out_features=self.num_att_head, bias=False)
 
     def forward(self, image_batch, text_batch):
         # image_batch = sample_batch['image']
@@ -83,6 +85,9 @@ class InceptRobertaAttentionModel(nn.Module):
         att_img_text = att_img_text.transpose(1, 2)
 
         weighted_img_text_pred = att_img_text@combined_img_text
-        weighted_img_text_pred = weighted_img_text_pred.view(len(text_batch), self.num_classes)
 
-        return weighted_img_text_pred
+        avg_weighted_img_text_pred = torch.sum(weighted_img_text_pred, 1) / self.num_att_head
+
+        avg_weighted_img_text_pred = avg_weighted_img_text_pred.view(len(text_batch), self.num_classes)
+
+        return avg_weighted_img_text_pred

@@ -72,7 +72,7 @@ def main():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     # Hyper parameter tuning
-    num_att_head = [1, 2, 4, 8]
+    num_att_head = [1, 2, 3, 5, 6, 8]
 
     for att_head in num_att_head:
         deepsentatt_config = {

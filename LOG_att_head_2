@@ -1,0 +1,17 @@
+Epoch 0/4
+train Loss: 1.1080044078826905 Acc: tensor(0.3237, dtype=torch.float64)
+val Loss: 1.027738881111145 Acc: tensor(0.5900, dtype=torch.float64)
+Epoch 1/4
+train Loss: 0.9973252487182617 Acc: tensor(0.6238, dtype=torch.float64)
+val Loss: 0.9847162961959839 Acc: tensor(0.5950, dtype=torch.float64)
+Epoch 2/4
+train Loss: 0.9679458618164063 Acc: tensor(0.6238, dtype=torch.float64)
+val Loss: 0.9815433406829834 Acc: tensor(0.5950, dtype=torch.float64)
+Epoch 3/4
+train Loss: 0.9637151837348938 Acc: tensor(0.6238, dtype=torch.float64)
+val Loss: 0.9779007863998413 Acc: tensor(0.5950, dtype=torch.float64)
+Epoch 4/4
+train Loss: 0.9605812335014343 Acc: tensor(0.6238, dtype=torch.float64)
+val Loss: 0.9736706399917603 Acc: tensor(0.5950, dtype=torch.float64)
+Training complete in 267.0m 12.547566175460815s
+Best val Acc: tensor(0.5950, dtype=torch.float64)

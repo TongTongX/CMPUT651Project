@@ -66,13 +66,13 @@ def main():
 
     batch_size = 64
 
-    dataloaders_dict = get_dataloaders(trial_data_path, trial_img_path, batch_size, [0.8, 0.2])
+    dataloaders_dict = get_dataloaders(train_data_path, train_img_path, batch_size, [0.8, 0.2])
 
     # Detect if we have a GPU available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     # Hyper parameter tuning
-    num_att_head = [1, 2, 3, 5, 6, 8]
+    num_att_head = [1]
 
     for att_head in num_att_head:
         deepsentatt_config = {

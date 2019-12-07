@@ -8,7 +8,7 @@ import torch.optim as optim
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, random_split, WeightedRandomSampler
 from torchvision import transforms, utils
 
 from data.meme_dataset import MemeDataset
@@ -25,6 +25,20 @@ def show_batch(sample_batch):
   grid = utils.make_grid(images_batch)
   plt.imshow(grid.numpy().transpose((1, 2, 0)))
   plt.title('Batch from dataloader')
+
+def make_weights_for_balanced_classes(meme_dataset, num_classes):
+  counts = [0] * num_classes
+  for i in range(len(meme_dataset)):
+    counts[meme_dataset[i]['overall_sentiment_ternary_int']] += 1
+  weight_per_class = [0.] * num_classes
+  total_count = float(sum(counts))
+  for i in range(num_classes):
+    weight_per_class[i] = total_count/float(counts[i])
+  sample_weights = [0] * len(meme_dataset)
+  for i in range(len(meme_dataset)):
+    sample_weights[i] = weight_per_class[meme_dataset[i]['overall_sentiment_ternary_int']]
+  sample_weights = torch.DoubleTensor(sample_weights)
+  return sample_weights
 
 def main():
   # Create training and validation datasets
@@ -43,17 +57,27 @@ def main():
     dataset=trial_meme_dataset_transformed, lengths=[800, 200])
 
   # Create training and validation dataloaders
+  sample_weights_train = make_weights_for_balanced_classes(
+      trial_meme_train, num_classes=3)
+  weighted_sampler_train = WeightedRandomSampler(
+      sample_weights_train, len(sample_weights_train))
   train_dataloader = DataLoader(dataset=trial_meme_train, batch_size=4,
-    shuffle=True, num_workers=4)
+    sampler=weighted_sampler_train, num_workers=4)
+  
+  sample_weights_val = make_weights_for_balanced_classes(
+      trial_meme_val, num_classes=3)
+  weighted_sampler_val = WeightedRandomSampler(
+      sample_weights_val, len(sample_weights_val))
   val_dataloader = DataLoader(dataset=trial_meme_val, batch_size=4,
-    shuffle=True, num_workers=4)
+    sampler=weighted_sampler_val, num_workers=4)
+  
   dataloaders_dict = {'train': train_dataloader, 'val': val_dataloader}
 
   # Detect if we have a GPU available
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
   deepsent_config = {
-    'num_classes': 5, # negative, positive, neutral
+    'num_classes': 3, # negative, positive, neutral
     'batch_size': 4, 'vocab_size': 400000, 'embedding_dim': 300}
 #   deepsent = DeepSentimentModel(**deepsent_config)
   deepsent = DeepSentimentVanillaModel(**deepsent_config)
@@ -87,7 +111,7 @@ def main():
   # Train and evaluate
   deepsent, hist = train_model(model=deepsent, dataloaders=dataloaders_dict,
     criterion=criterion, optimizer=optimizer_ft, num_epochs=1,
-    is_inception=True, target_label='overall_sentiment_int')
+    is_inception=True, target_label='overall_sentiment_ternary_int')
 
 
 '''

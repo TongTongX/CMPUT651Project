@@ -69,9 +69,9 @@ import syluutils as utils
 classes = ('negative', 'neutral', 'positive')
 imgpath='../data/memotion_analysis_training_data/data_7000/' 
 datapath='../data/data_7000_new.csv'
-batchsize=4
+batchsize=8
 
-trainloader,testloader = utils.getTrainTestLoader(datapath,batchsize)
+train_loader,test_loader = utils.getTrainTestLoader(datapath,batchsize)
 
 ########################################################################
 # Let us show some of the training images, for fun.
@@ -90,12 +90,13 @@ def imshow(img):
 
 
 # get some random training images
+trainloader = iter(train_loader)
 images, _,labels = utils.getNextBatch(trainloader,imgpath)
 
 # show images
 imshow(torchvision.utils.make_grid(images))
 # print labels
-print(' '.join('%5s' % classes[labels[j]] for j in range(4)))
+print(' '.join('%5s' % classes[labels[j]] for j in range(batchsize)))
 
 
 ########################################################################
@@ -159,7 +160,7 @@ optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 for epoch in range(2):  # loop over the dataset multiple times
 
     running_loss = 0.0
-    for i, data in enumerate(trainloader, 0):
+    for i, data in enumerate(train_loader, 0):
         # get the inputs; data is a list of [inputs, labels]
         inputs,_, labels = utils.getBatchData(data,imgpath)
 
@@ -202,12 +203,12 @@ torch.save(net.state_dict(), PATH)
 # correct, we add the sample to the list of correct predictions.
 #
 # Okay, first step. Let us display an image from the test set to get familiar.
-
+testloader = iter(test_loader)
 images, _, labels = utils.getNextBatch(testloader,imgpath)
 
 # print images
 imshow(torchvision.utils.make_grid(images))
-print('GroundTruth: ', ' '.join('%5s' % classes[labels[j]] for j in range(4)))
+print('GroundTruth: ', ' '.join('%5s' % classes[labels[j]] for j in range(batchsize)))
 
 ########################################################################
 # Next, let's load back in our saved model (note: saving and re-loading the model
@@ -229,7 +230,7 @@ outputs = net(images)
 _, predicted = torch.max(outputs, 1)
 
 print('Predicted: ', ' '.join('%5s' % classes[predicted[j]]
-                              for j in range(4)))
+                              for j in range(batchsize)))
 
 ########################################################################
 # The results seem pretty good.
@@ -239,7 +240,7 @@ print('Predicted: ', ' '.join('%5s' % classes[predicted[j]]
 correct = 0
 total = 0
 with torch.no_grad():
-    for data in testloader:
+    for data in test_loader:
         images, _, labels = utils.getBatchData(data,imgpath)
         outputs = net(images)
         _, predicted = torch.max(outputs.data, 1)
@@ -259,18 +260,21 @@ print('Accuracy of the network on the 20%% test images: %d %%' % (
 
 class_correct = list(0. for i in range(3))
 class_total = list(0. for i in range(3))
+
+
 with torch.no_grad():
-    for data in testloader:
+    for data in test_loader:
         images, _, labels = utils.getBatchData(data,imgpath)
         outputs = net(images)
         _, predicted = torch.max(outputs, 1)
         c = (predicted == labels).squeeze()
-        for i in range(4):
+        # print(c)
+        for i in range(batchsize):
             label = labels[i]
             class_correct[label] += c[i].item()
             class_total[label] += 1
 
-print(class_total)
+# print(class_total)
 
 for i in range(3):
     print('Accuracy of %5s : %2d %%' % (
@@ -351,5 +355,5 @@ print(device)
 # .. _Chat with other users on Slack: https://pytorch.slack.com/messages/beginner/
 
 # %%%%%%INVISIBLE_CODE_BLOCK%%%%%%
-del dataiter
+# del dataiter
 # %%%%%%INVISIBLE_CODE_BLOCK%%%%%%

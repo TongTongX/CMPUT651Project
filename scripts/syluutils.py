@@ -66,7 +66,7 @@ def getBalData(path):
 
 def getDataLoader(dataset, batchsize):
     dataset = np.resize(dataset, (dataset.shape[0]//batchsize,batchsize,3))
-    return iter(dataset)
+    return dataset
 
 def getNextBatch(dataloader, imgpath):
     batch = next(dataloader)
@@ -96,14 +96,14 @@ def getTrainTestLoader(datapath,batchsize):
 
     return trainloader,testloader
 
-
 if __name__ == "__main__":
     imgpath='../data/memotion_analysis_training_data/data_7000/' 
     datapath='../data/data_7000_new.csv'
-    batchsize=4
+    batchsize=8
 
     # USAGE: 
     trainloader,testloader = getTrainTestLoader(datapath,batchsize)
+    trainloader,testloader = iter(trainloader),iter(testloader)
     imgbatch, textbatch, y_batch = getNextBatch(trainloader,imgpath)
     # OR
     for i, data in enumerate(trainloader, 0):

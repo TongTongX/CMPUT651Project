@@ -70,15 +70,17 @@ def sampleimg2data(sample):
 
 def sampley2data(sample, _LABEL_DICT=LABEL_DICT):
     ydata = dict()
-    image_name = np.asarray(sample['image_name'])
-    y = list() 
-    for label_type in _LABEL_DICT:
-        y.append(np.asarray(sample[label_type]))
-    y = np.asarray(y).T
+    # image_name = np.asarray(sample['image_name'])
+    # y = list() 
+    # for label_type in _LABEL_DICT:
+    #     y.append(np.asarray(sample[label_type]))
+    # y = np.asarray(y)
+    y = np.asarray(sample['overall_sentiment_int'])
 
-    for i in range(len(image_name)):
-        ydata[image_name[i]] = y[i]
-    return ydata,y.T
+    # for i in range(len(image_name)):
+    #     ydata[image_name[i]] = y[i]
+    # return ydata,y.T
+    return y.T
 
 '''
 def readTxtEmb(filename):
@@ -95,7 +97,23 @@ def readTxtEmb(filename):
         self.txt_emb_dict[imgname] = emb
 '''
 
-# if __name__ == "__main__":
-#     dataset = readData('trial',3)
-#     for x in getBatchSample(dataset,0):
-#         print(x.values())
+if __name__ == "__main__":
+    dataset = readData('train',8000)
+    sample = dataset[0][0]
+    y = sampley2data(sample)
+    unique, counts = np.unique(y, return_counts=True)
+    _count_dict = dict(zip(unique, counts))
+    print(_count_dict)
+    x=list(_count_dict.values())/sum(_count_dict.values())
+    perc = dict(zip(unique, list(x)))
+    print(perc)
+
+    # trial
+    # {0: 21, 1: 59, 2: 302, 3: 445, 4: 173}
+    # 5 classes: {0: 2.1%, 1: 5.9% 2: 30.2%, 3: 44.5%, 4: 17.3%}
+    # 3 classes: {0: 8.0%, 1: 30.2%, 2: 61.8%}
+    
+    # train
+    # {0: 151, 1: 479, 2: 2201, 3: 3127, 4: 1033}
+    # 5 classes: {0: 2.16%, 1: 6.852%, 2: 31.48%, 3: 44.73%, 4: 14.78%}
+    # 3 classes: {0: 9.01%, 1: 31.48%, 2: 59.51%}

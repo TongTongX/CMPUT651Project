@@ -277,7 +277,7 @@ with torch.no_grad():
 print(class_total)
 
 for i in range(3):
-    print('Accuracy of %5s : %2d %%' % (
+    print('Accuracy of %5s : %.3f %%' % (
         classes[i], 100 * class_correct[i] / class_total[i]))
 
 ########################################################################

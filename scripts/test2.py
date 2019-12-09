@@ -91,12 +91,12 @@ def imshow(img):
 
 # get some random training images
 trainloader = iter(train_loader)
-images, _,labels = utils.getNextBatch(trainloader,imgpath)
+# images, _,labels = utils.getNextBatch(trainloader,imgpath)
 
-# show images
-imshow(torchvision.utils.make_grid(images))
-# print labels
-print(' '.join('%5s' % classes[labels[j]] for j in range(batchsize)))
+# # show images
+# imshow(torchvision.utils.make_grid(images))
+# # print labels
+# print(' '.join('%5s' % classes[labels[j]] for j in range(batchsize)))
 
 
 ########################################################################
@@ -175,9 +175,9 @@ for epoch in range(50):  # loop over the dataset multiple times
 
         # print statistics
         running_loss += loss.item()
-        if i % 2000 == 1999:    # print every 2000 mini-batches
+        if i % 50 == 49:    # print every 50 mini-batches
             print('[%d, %5d] loss: %.3f' %
-                  (epoch + 1, i + 1, running_loss / 2000))
+                  (epoch + 1, i + 1, running_loss / 50))
             running_loss = 0.0
 
 print('Finished Training')
@@ -185,7 +185,7 @@ print('Finished Training')
 ########################################################################
 # Let's quickly save our trained model:
 
-PATH = './cifar_net.pth'
+PATH = './cnn_imgs.pth'
 torch.save(net.state_dict(), PATH)
 
 ########################################################################

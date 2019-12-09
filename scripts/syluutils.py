@@ -102,11 +102,11 @@ if __name__ == "__main__":
     batchsize=8
 
     # USAGE: 
-    trainloader,testloader = getTrainTestLoader(datapath,batchsize)
-    trainloader,testloader = iter(trainloader),iter(testloader)
+    train_loader,test_loader = getTrainTestLoader(datapath,batchsize)
+    trainloader,testloader = iter(train_loader),iter(test_loader)
     imgbatch, textbatch, y_batch = getNextBatch(trainloader,imgpath)
     # OR
-    for i, data in enumerate(trainloader, 0):
+    for i, data in enumerate(train_loader, 0):
         images, texts, labels = utils.getBatchData(data,imgpath)
 
     # print(next(testloader))

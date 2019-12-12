@@ -19,7 +19,7 @@ class DeepSentimentVanillaModel(nn.Module):
     self.batch_size = kwargs['batch_size']  # 64
     # Pretrained image model
     self.inception = models.googlenet(pretrained=True, aux_logits=True)
-    set_parameter_requires_grad(model=self.inception, feature_extracting=True)
+    # set_parameter_requires_grad(model=self.inception, feature_extracting=True)
     # Handle the auxilary net
     self.num_ftrs = self.inception.aux1.fc2.in_features
     self.inception.aux1.fc2 = nn.Linear(self.num_ftrs, self.num_classes)
@@ -103,7 +103,7 @@ class DeepSentimentVanillaModel(nn.Module):
     # print('concat_features.size(): {}'.format(concat_features.size()))
     x = F.relu(self.fc1(concat_features))
     # print('x.size(): {}'.format(x.size()))
-    x = F.relu(self.fc2(x))
+    x = self.fc2(x)
     # print('x.size(): {}'.format(x.size()))
     x = F.softmax(x, dim=1)
     return x

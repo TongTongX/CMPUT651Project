@@ -108,7 +108,7 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25,
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-    print('Best val Acc: {:4f}'.formsample_batchat(best_acc))
+    print('Best val Acc: {:4f}'.format(best_acc))
 
     LOG_FILE.write('Training complete in ' + str(time_elapsed // 60) + 'm ' + str(time_elapsed % 60) + 's' + '\n')
     LOG_FILE.write('Best val Acc: ' + str(best_acc) + '\n')

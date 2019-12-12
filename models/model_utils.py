@@ -45,7 +45,8 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25,
 
             # Iterate over data.
             for sample_batch in dataloaders[phase]:
-                print('Batch idx: ', batch_idx)
+                if batch_idx % 10 == 0:
+                    print('Batch idx: ', batch_idx)
                 batch_idx += 1
 
                 image_batch = sample_batch['image'].to(device)

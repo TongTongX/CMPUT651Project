@@ -45,6 +45,7 @@ class Net(nn.Module):
         # input()
         return x
 
+log_file = open('log_test3', 'w')
 
 deepsent_config = {
         'num_classes': 3, # negative, positive, neutral
@@ -75,8 +76,10 @@ for epoch in range(10):  # loop over the dataset multiple times
         if i % 50 == 49:    # print every 50 mini-batches
             print('[%d, %5d] loss: %.3f' %
                   (epoch + 1, i + 1, running_loss / 50))
+            log_file.write('[%d, %5d] loss: %.3f \n' % (epoch + 1, i + 1, running_loss / 50))
             running_loss = 0.0
 print('Finished Training')
+log_file.write('Finished Training\n')
 
 
 testloader = iter(test_loader)
@@ -91,6 +94,8 @@ with torch.no_grad():
         correct += (predicted == labels).sum().item()
 print('Accuracy of the network on the 20%% test images: %.3f %%' % (
     100 * correct / total))
+log_file.write(
+    'Accuracy of the network on the 20%% test images: %.3f %% \n' % (100 * correct / total))
 
 
 class_correct = list(0. for i in range(3))
@@ -108,6 +113,9 @@ with torch.no_grad():
             class_total[label] += 1
 
 print(class_total)
+log_file.write(str(class_total)+'\n')
 for i in range(3):
     print('Accuracy of %5s : %2d %%' % (
         classes[i], 100 * class_correct[i] / class_total[i]))
+    log_file.write(
+        'Accuracy of %5s : %2d %% \n' % (classes[i], 100 * class_correct[i] / class_total[i]))

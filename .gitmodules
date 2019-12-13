@@ -4,3 +4,9 @@
 [submodule "InferSent"]
 	path = InferSent
 	url = git@github.com:facebookresearch/InferSent.git
+[submodule "scripts/transformers"]
+	path = scripts/transformers
+	url = git@github.com:huggingface/transformers.git
+[submodule "scripts/simpletransformers"]
+	path = scripts/simpletransformers
+	url = git@github.com:ThilinaRajapakse/simpletransformers.git

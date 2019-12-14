@@ -49,29 +49,38 @@ def main():
         image_dir=os.path.join(os.getcwd(),
         '../data/semeval-2020_trialdata/Meme_images/'),
         transform=transforms.Compose(
-            [ResizeSample(size=(224, 224)),
-            ToTensorSample(),
-            NormalizeSample(mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225])]))
+            [
+                ResizeSample(size=(299, 299)),  # For Inception
+                # ResizeSample(size=(224, 224)),  # For other pretrained models
+                ToTensorSample(),
+                NormalizeSample(mean=[0.485, 0.456, 0.406],
+                std=[0.229, 0.224, 0.225])]))
 
     trial_meme_train, trial_meme_val = random_split(
         dataset=trial_meme_dataset_transformed, lengths=[800, 200])
 
     # Create training and validation dataloaders
-    sample_weights_train = make_weights_for_balanced_classes(
-        trial_meme_train, num_classes=3)
-    weighted_sampler_train = WeightedRandomSampler(
-        sample_weights_train, len(sample_weights_train))
-    train_dataloader = DataLoader(dataset=trial_meme_train, batch_size=4,
-        sampler=weighted_sampler_train, num_workers=4)
+    # Balanced class============================================================
+    # sample_weights_train = make_weights_for_balanced_classes(
+    #     trial_meme_train, num_classes=3)
+    # weighted_sampler_train = WeightedRandomSampler(
+    #     sample_weights_train, len(sample_weights_train))
+    # train_dataloader = DataLoader(dataset=trial_meme_train, batch_size=4,
+    #     sampler=weighted_sampler_train, num_workers=4)
   
-    sample_weights_val = make_weights_for_balanced_classes(
-        trial_meme_val, num_classes=3)
-    weighted_sampler_val = WeightedRandomSampler(
-        sample_weights_val, len(sample_weights_val))
-    val_dataloader = DataLoader(dataset=trial_meme_val, batch_size=4,
-        sampler=weighted_sampler_val, num_workers=4)
-  
+    # sample_weights_val = make_weights_for_balanced_classes(
+    #     trial_meme_val, num_classes=3)
+    # weighted_sampler_val = WeightedRandomSampler(
+    #     sample_weights_val, len(sample_weights_val))
+    # val_dataloader = DataLoader(dataset=trial_meme_val, batch_size=4,
+    #     sampler=weighted_sampler_val, num_workers=4)
+    # ==========================================================================
+
+    # Imbalanced class==========================================================
+    train_dataloader = DataLoader(dataset=trial_meme_train, batch_size=4, shuffle=True, num_workers=4)
+    val_dataloader = DataLoader(dataset=trial_meme_val, batch_size=4, shuffle=True, num_workers=4)
+    # ==========================================================================
+
     dataloaders_dict = {'train': train_dataloader, 'val': val_dataloader}
 
     # Detect if we have a GPU available
@@ -80,9 +89,9 @@ def main():
     deepsent_config = {
         'num_classes': 3, # negative, positive, neutral
         'batch_size': 4, 'vocab_size': 400000, 'embedding_dim': 300}
-    # deepsent = DeepSentimentModel(**deepsent_config)
+    deepsent = DeepSentimentModel(**deepsent_config)
     # deepsent = DeepSentimentVanillaModel(**deepsent_config)
-    deepsent = ShallownetGloveModel(**deepsent_config)
+    # deepsent = ShallownetGloveModel(**deepsent_config)
     # Send the model to GPU
     deepsent = deepsent.to(device)
 

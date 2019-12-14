@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import time
 import os
 import copy
+from sklearn.metrics import accuracy_score, f1_score
 
 def train_model(model, dataloaders, criterion, optimizer, num_epochs=25,
     is_inception=False, device=torch.device('cpu'), target_label='overall_sentiment_ternary_int'):
@@ -20,6 +21,7 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25,
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
+    best_f1 = 0.0
 
     LOG_FILE = open('../LOG', 'w')
 
@@ -38,6 +40,8 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25,
 
             running_loss = 0.0
             running_corrects = 0
+            running_truth = []
+            running_pred = []
 
             print('Phase: ', phase)
 
@@ -90,17 +94,22 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25,
                 # statistics
                 running_loss += loss.item() * image_batch.size(0)
                 running_corrects += torch.sum(preds == sentiment_labels.data)
+                running_truth += sentiment_labels.data.numpy().tolist()
+                running_pred += preds.numpy().tolist()
 
             epoch_loss = running_loss / len(dataloaders[phase].dataset)
             epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
+            epoch_acc = accuracy_score(running_truth, running_pred)
+            epoch_f1 = f1_score(running_truth, running_pred, average='macro')
 
-            print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
+            print('{} Loss: {:.4f} Acc: {:.4f} F1: {:.4f}'.format(phase, epoch_loss, epoch_acc, epoch_f1))
 
             LOG_FILE.write(phase + ' Loss: ' + str(epoch_loss) + ' Acc: ' + str(epoch_acc) + '\n')
 
             # deep copy the model
             if phase == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc
+                best_f1 = epoch_f1
                 best_model_wts = copy.deepcopy(model.state_dict())
             if phase == 'val':
                 val_acc_history.append(epoch_acc)
@@ -110,6 +119,7 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25,
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     print('Best val Acc: {:4f}'.format(best_acc))
+    print('Best val F1: {:4f}'.format(best_f1))
 
     LOG_FILE.write('Training complete in ' + str(time_elapsed // 60) + 'm ' + str(time_elapsed % 60) + 's' + '\n')
     LOG_FILE.write('Best val Acc: ' + str(best_acc) + '\n')

@@ -64,6 +64,7 @@ class DeepSentimentVanillaModel(nn.Module):
         self.fc_size = 512
         self.encode_dim = 4096
         self.fc1 = nn.Linear(in_features=self.num_ftrs+self.encode_dim, out_features=self.fc_size)
+        self.fc1_bn = nn.BatchNorm1d(num_features=self.fc_size)
         self.fc2 = nn.Linear(in_features=self.fc_size, out_features=self.num_classes)
         print('self.fc1:\n{}'.format(self.fc1))
         print('self.fc2:\n{}'.format(self.fc2))
@@ -97,7 +98,7 @@ class DeepSentimentVanillaModel(nn.Module):
         # Concatenate image and text features
         concat_features = torch.cat((image_features, embeddings), dim=1)
         # print('concat_features.size(): {}'.format(concat_features.size()))
-        x = F.relu(self.fc1(concat_features))
+        x = F.relu(self.fc1_bn(self.fc1(concat_features)))
         # print('x.size(): {}'.format(x.size()))
         x = self.fc2(x)
         # print('x.size(): {}'.format(x.size()))

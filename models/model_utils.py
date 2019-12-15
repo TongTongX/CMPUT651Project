@@ -138,6 +138,7 @@ def train_att_model(model, dataloaders, criterion, optimizer, att_head_num, num_
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
+    best_f1 = 0.0
 
     LOG_FILE = open('../LOG_att_head_'+str(att_head_num), 'w')
 
@@ -156,6 +157,8 @@ def train_att_model(model, dataloaders, criterion, optimizer, att_head_num, num_
 
             running_loss = 0.0
             running_corrects = 0
+
+            f1_val = 0.0
 
             print('Phase: ', phase)
 
@@ -208,31 +211,127 @@ def train_att_model(model, dataloaders, criterion, optimizer, att_head_num, num_
                 running_loss += loss.item() * image_batch.size(0)
                 running_corrects += torch.sum(preds == sentiment_labels.data)
 
+                # F1 score
+                f1_val += f1_score(sentiment_labels, preds, average='macro')
+
             epoch_loss = running_loss / len(dataloaders[phase].dataset)
             epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
 
-            print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
+            epoch_f1_avg = f1_val / batch_idx
 
-            LOG_FILE.write(phase + ' Loss: ' + str(epoch_loss) + ' Acc: ' + str(epoch_acc) + '\n')
+            print('{} Loss: {:.4f} Acc: {:.4f} F1: {:.4f}'.format(phase, epoch_loss, epoch_acc, epoch_f1_avg))
+
+            LOG_FILE.write(phase + ' Loss: ' + str(epoch_loss) + ' Acc: ' + str(epoch_acc) + ' F1: ' + str(epoch_f1_avg) + '\n')
+
+            # # deep copy the model
+            # if phase == 'val' and epoch_acc > best_acc:
+            #     best_acc = epoch_acc
+            #     best_model_wts = copy.deepcopy(model.state_dict())
+            # if phase == 'val':
+            #     val_acc_history.append(epoch_acc)
 
             # deep copy the model
-            if phase == 'val' and epoch_acc > best_acc:
+            if phase == 'val' and epoch_f1_avg > best_f1:
+                best_f1 = epoch_f1_avg
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
             if phase == 'val':
-                val_acc_history.append(epoch_acc)
+                val_acc_history.append(epoch_f1_avg)
 
         print()
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-    print('Best val Acc: {:4f}'.format(best_acc))
+    print('Best val F1: {:4f}'.format(best_f1))
+    print('Corresponding val Acc: {:4f}'.format(best_acc))
 
     LOG_FILE.write('Training complete in ' + str(time_elapsed // 60) + 'm ' + str(time_elapsed % 60) + 's' + '\n')
-    LOG_FILE.write('Best val Acc: ' + str(best_acc) + '\n')
+    LOG_FILE.write('Best val F1: ' + str(best_f1) + '\n')
+    LOG_FILE.write('Corresponding val Acc: ' + str(best_acc) + '\n')
 
     # load best model weights
     model.load_state_dict(best_model_wts)
+    return model, val_acc_history
+
+
+
+def train_balanced_att_model(model, dataloaders, imgpath, criterion, optimizer, att_head_num, num_epochs=25,
+    is_inception=False, device=torch.device('cpu'), target_label='overall_sentiment_ternary_int'):
+    since = time.time()
+
+    val_acc_history = []
+
+    best_model_wts = copy.deepcopy(model.state_dict())
+    best_acc = 0.0
+
+    # LOG_FILE = open('../LOG_att_head_'+str(att_head_num), 'w')
+    # trainloader = iter(train_loader)
+    for epoch in range(num_epochs):  # loop over the dataset multiple times
+
+        running_loss = 0.0
+        for i, data in enumerate(dataloaders['train'], 0):
+            # get the inputs; data is a list of [inputs, labels]
+            images, texts, labels = utils.getBatchData(data,imgpath)
+
+            # zero the parameter gradients
+            optimizer.zero_grad()
+
+            # forward + backward + optimize
+            outputs = model(images, texts)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            # print statistics
+            running_loss += loss.item()
+
+            if i % 50 == 49:    # print every 50 mini-batches
+                print('[%d, %5d] loss: %.3f' %
+                      (epoch + 1, i + 1, running_loss / 50))
+                running_loss = 0.0
+
+
+
+    time_elapsed = time.time() - since
+    print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+
+    correct = 0
+    total = 0
+    running_loss = 0.0
+
+    f1_val = 0.0
+    batch_idx = 0
+
+    with torch.no_grad():
+        for i, data in enumerate(dataloaders['val'], 0):
+            batch_idx += 1
+
+            images, texts, labels = utils.getBatchData(data,imgpath)
+            outputs = model(images, texts)
+
+            loss = criterion(outputs, labels)
+
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+            running_loss += loss.item()
+
+            # F1 score
+            f1_val += f1_score(labels, predicted, average='macro')
+
+            if i % 50 == 49:    # print every 50 mini-batches
+                print('[%d, %5d] loss: %.3f' %
+                      (epoch + 1, i + 1, running_loss / 50))
+                running_loss = 0.0
+
+    print('Accuracy of the network on the 20%% test images: %.3f %%' % (
+        100 * correct / total))
+
+    print('Macro F1 of the network on the 20%% test images: %.3f %%' % (
+        100 * f1_val / batch_idx))
+
+    # # load best model weights
+    # model.load_state_dict(best_model_wts)
     return model, val_acc_history
 
 

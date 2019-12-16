@@ -8,6 +8,9 @@ from PIL import Image
 from data.meme_dataset import MemeDataset
 
 class ResizeSample(transforms.Resize):
+    """
+    Rescale the image in the sample.
+    """
     def __init__(self, size, interpolation=Image.BILINEAR):
         super().__init__(size=size, interpolation=interpolation)
 
@@ -20,6 +23,9 @@ class ResizeSample(transforms.Resize):
         return super().__repr__()
 
 class ToTensorSample(transforms.ToTensor):
+    """
+    Convert the image in the sample to a tensor.
+    """
     def __call__(self, sample):
         image_tensor = super().__call__(pic=sample['image'])
         sample['image'] = image_tensor
@@ -29,6 +35,9 @@ class ToTensorSample(transforms.ToTensor):
         return super().__repr__()
 
 class NormalizeSample(transforms.Normalize):
+    """
+    Normalize the image in the sample.
+    """
     def __init__(self, mean, std, inplace=False):
         super().__init__(mean=mean, std=std, inplace=inplace)
 

@@ -39,6 +39,9 @@ class MemeDataset(Dataset):
         self._preprocess_dataset()
     
     def _preprocess_dataset(self):
+        """
+        Load data into pandas dataframe; remove invalid rows; add onehont and integer label columns.
+        """
         # self.meme_frame = pd.read_csv(filepath_or_buffer=self.csv_file)
         self.meme_frame = pd.read_csv(
             filepath_or_buffer=self.csv_file, sep=' ,|,', quoting=csv.QUOTE_NONE,
@@ -79,6 +82,9 @@ class MemeDataset(Dataset):
             self.meme_frame[label + '_int'] = np.argmax(onehot_array, axis=1).tolist()
 
     def get_invalid_url_row_indices(self):
+        """
+        Retrieve row indices whose corresponding row contains invalid image url.
+        """
         valid_count = 0
         invalid_indices = []
         for i, img_url in enumerate(self.meme_frame['image_url']):
@@ -109,22 +115,32 @@ class MemeDataset(Dataset):
         return pd.Index(invalid_indices)
 
     def __len__(self):
+        """
+        Get length of dataframe (number of samples).
+        """
         return len(self.meme_frame)
 
     def __getitem__(self, idx):
+        """
+        Get data sample by index. A sample is a python dictionary containing an
+        image, the name of the image, and sentiment labels.
+        """
         ImageFile.LOAD_TRUNCATED_IMAGES = True
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
         image_name = self.meme_frame['image_name'][idx]
-        # TODO(xutong) Retrieve image from local directory
+        # Retrieve image from local directory===================================
         image_path = os.path.join(self.image_dir, image_name)
         image = Image.open(fp=image_path)
+
         # Retrieve image from url - invalid url around 1/5 of trial dataset
         # image_url = self.meme_frame['image_url'][idx]
         # response = requests.get(url=image_url)
         # assert response.status_code == 200
         # image = Image.open(BytesIO(response.content))
+        # ======================================================================
+
         # Convert image to RGB. This drops the opacity channel if it exists.
         image = image.convert(mode='RGB')
 

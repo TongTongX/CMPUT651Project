@@ -7,11 +7,7 @@ import numpy as np
 import re
 import random
 
-from PIL import ImageFile
-ImageFile.LOAD_TRUNCATED_IMAGES = True
-
 def readImg(path,imgname): 
-
     img = Image.open(path+imgname)
     img = img.convert('RGB')
     rsize = img.resize((256,256), Image.ANTIALIAS)
@@ -60,15 +56,29 @@ def getAllData(path):
         sample = [row[0], row[3],int(senti2label[row[-1]])]
         if row[3] == " ":
             sample = [row[0], row[2],int(senti2label[row[-1]])]
-        # sample = [row[0], row[3],int(senti2label[row[-2]])]
-        # if row[3] == " ":
-        #     sample = [row[0], row[2],int(senti2label[row[-2]])]
         dataset.append(sample)
 
     dataset = np.asarray(dataset)
     return dataset
 
-def getBalData(dataset):
+def getBalData(path):
+    PATTERN = ' ,|,'
+    f = open(path)
+    senti2label = {"positive":2, "very_positive":2, "very_negative":0, "negative":0, "neutral":1}
+    dataset = list()
+
+    for line in f:
+        line = line[:-1]
+        row = re.split(PATTERN,line)
+        imgname = row[0]
+        # empty correct text
+
+        sample = [row[0], row[3],int(senti2label[row[-1]])]
+        if row[3] == " ":
+            sample = [row[0], row[2],int(senti2label[row[-1]])]
+        dataset.append(sample)
+
+    dataset = np.asarray(dataset)
     min_label = getLeastLabel(dataset)
     bal_dataset = getEqualLabels(dataset,min_label) 
     # print(bal_dataset.shape)
@@ -95,11 +105,11 @@ def getBatchData(batch, imgpath):
     return [imgbatch, batch[:,1], y_batch]
 
 def getTrainTestLoader(datapath,batchsize):
-    trainset,testset = splitTrainTest(datapath)
-
-    trainset = getBalData(trainset)
-    print(trainset.shape)
-    print(testset.shape)
+    dataset = getBalData(datapath)
+    from sklearn.model_selection import train_test_split
+    trainset, testset = train_test_split(dataset, test_size=0.2)
+    # print(trainset.shape)
+    # print(testset.shape)
 
     trainloader = getDataLoader(trainset, batchsize)
     testloader = getDataLoader(testset, batchsize)
@@ -109,9 +119,9 @@ def getTrainTestLoader(datapath,batchsize):
 def splitTrainTest(datapath):
     dataset = getAllData(datapath)
     from sklearn.model_selection import train_test_split
-    trainset, testset = train_test_split(dataset, test_size=0.1)
-    # print(trainset.shape)
-    # print(testset.shape)
+    trainset, testset = train_test_split(dataset, test_size=0.2)
+    print(trainset.shape)
+    print(testset.shape)
 
     # print(testset[:5])
 
@@ -130,10 +140,7 @@ def overSamplingSMOTE(dataset):
 if __name__ == "__main__":
     imgpath='../data/memotion_analysis_training_data/data_7000/' 
     datapath='../data/data_7000_new.csv'
-    batchsize=4
-
-    # imgpath='../data/semeval-2020_trialdata/Meme_images/'
-    # datapath='../data/data1.csv'
+    batchsize=8
 
     # # USAGE: 
     # train_loader,test_loader = getTrainTestLoader(datapath,batchsize)
@@ -143,45 +150,11 @@ if __name__ == "__main__":
     # for i, data in enumerate(train_loader, 0):
     #     images, texts, labels = utils.getBatchData(data,imgpath)
 
-    # dataset = getAllData(datapath)
-    # loader = getDataLoader(dataset, batchsize)
+    # print(next(testloader))
+    # print(next(testloader))
 
-    # correct = 0
-    # total = 0
-    # y_pred = list()
-    # y_true=list()
-    # with torch.no_grad():
-    #     for data in loader:
-    #         images, _, labels = getBatchData(data,imgpath)
-    #         y_true+=list(labels)
-
-    # y_pred = list(np.zeros(len(y_true)))
-    # y_pred=[x+2 for x in y_pred]
-    # from sklearn.metrics import f1_score
-    # y_true = [int(x) for x in y_true]
-    # from collections import Counter
-    # print(Counter(y_true))
-    # print('F1 score: %.3f %%' % (100*f1_score(y_true, y_pred, average = 'macro')))
-
+    # y = torch.Tensor(dataset[:,-1].astype(int))
+    # readImg(imgpath,"10_year_13-2.jpg")
 
     trainset,testset = splitTrainTest(datapath)
-    trainset = getBalData(trainset)
-    print(trainset.shape)
-    print(testset.shape)
-    # train_texts = trainset[:,1]
-    # train_label = trainset[:,-1]
-    # test_texts = testset[:,1]
-    # test_label = testset[:,-1]
-
-    import pandas as pd
-    train_label_df = pd.DataFrame({'label':trainset[:,-1]})
-    dev_label_df = pd.DataFrame({'label':testset[:,-1]})
-
-    train_input0_df = pd.DataFrame({'text':trainset[:,1]})
-    dev_input0_df = pd.DataFrame({'text':testset[:,1]})
-
-    train_input0_df.to_csv('data/train.input0', index=False, header=False, columns=train_input0_df.columns)
-    dev_input0_df.to_csv('data/dev.input0',  index=False, header=False, columns=dev_input0_df.columns)
-    train_label_df.to_csv('data/train.label',  index=False, header=False, columns=train_label_df.columns)
-    dev_label_df.to_csv('data/dev.label', index=False, header=False, columns=dev_label_df.columns)
-
+    overSamplingSMOTE(trainset)

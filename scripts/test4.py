@@ -43,7 +43,7 @@ import torch
 import torchvision
 import torchvision.transforms as transforms
 
-import syluutils as utils
+import data_preprocess as utils
 
 ########################################################################
 # The output of torchvision datasets are PILImage images of range [0, 1].
@@ -70,9 +70,6 @@ classes = ('negative', 'neutral', 'positive')
 imgpath='../data/memotion_analysis_training_data/data_7000/' 
 datapath='../data/data_7000_new.csv'
 batchsize=4
-
-imgpath='../data/semeval-2020_trialdata/Meme_images/'
-datapath='../data/data1.csv'
 
 train_loader,test_loader = utils.getTrainTestLoader(datapath,batchsize)
 
@@ -121,8 +118,6 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(16 * 61 * 61, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 3)
-        self.img_batch_norm1 = nn.BatchNorm1d(120)
-        self.img_batch_norm2 = nn.BatchNorm1d(84)
 
     def forward(self, x):
         # print(x.shape)
@@ -132,9 +127,9 @@ class Net(nn.Module):
         # print(x.shape)
         x = x.view(-1, 16 * 61 * 61)
         # print(x.shape)
-        x = F.relu(self.img_batch_norm1(self.fc1(x)))
+        x = F.relu(self.fc1(x))
         # print(x.shape)
-        x = F.relu(self.img_batch_norm2(self.fc2(x)))
+        x = F.relu(self.fc2(x))
         # print(x.shape)
         x = self.fc3(x)
         # print(x.shape)
@@ -162,7 +157,7 @@ optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 # We simply have to loop over our data iterator, and feed the inputs to the
 # network and optimize.
 
-for epoch in range(15):  # loop over the dataset multiple times
+for epoch in range(18):  # loop over the dataset multiple times
 
     running_loss = 0.0
     for i, data in enumerate(train_loader, 0):
@@ -259,13 +254,8 @@ with torch.no_grad():
 print('Accuracy of the network on the 700 test images: %.3f %%' % (
     100 * correct / total))
 
-# y_pred = list(np.zeros(len(y_true)))
-# y_pred=[x+2 for x in y_pred]
 from sklearn.metrics import f1_score
-# y_true = [int(x) for x in y_true]
-# from collections import Counter
-# print(Counter(y_true))
-print('F1 score: %.3f %%' % (100*f1_score(y_true, y_pred, average = 'macro')))
+print('F1 score: %.3f %%' % (100*f1_score(y_true, y_pred, average = 'weighted')))
 
 ########################################################################
 # That looks way better than chance, which is 10% accuracy (randomly picking

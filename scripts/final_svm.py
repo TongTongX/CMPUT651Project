@@ -30,7 +30,7 @@ class SVM_Classifier:
         data_transform = transforms.Compose([
             ResizeSample(size=(256, 256)),
             ToTensorSample(),
-            NormalizeSample(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+            NormalizeSample(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
         
         if datalabel == 'trial':
             dataset = MemeDataset(
@@ -81,8 +81,10 @@ class SVM_Classifier:
 
         X_test, y_test = list(),list()
         start = False
+        fiveto3_dict = {0:0,1:0,2:1,3:2,4:2}
         for i_batch, sample in enumerate(dataloader):
             X_batch, y_batch = self.sample2data(sample,batch_size) 
+            y_batch = np.asarray([fiveto3_dict[int(x)] for x in y_batch])
             if i_batch > tr_idx:
                 if type(y_test) == list:
                     X_test = np.asarray(X_batch)
@@ -96,6 +98,7 @@ class SVM_Classifier:
                     pass
                 else:
                     start = True
+                # print(y_batch)
                 self.train(X_batch,y_batch)
         # X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42)
         # print(y_train.shape,y_test.shape)
@@ -105,27 +108,30 @@ class SVM_Classifier:
         self.svclassifier.fit(X_train, y_train)
 
     def test(self, X_test, y_test):
-        # y_pred = self.svclassifier.predict(X_test)
+        y_pred = self.svclassifier.predict(X_test)
         # print(confusion_matrix(y_test,y_pred))
         # print(classification_report(y_test,y_pred))
         score = self.svclassifier.score(X_test,y_test)
+        from sklearn.metrics import f1_score
+        print('F1 score: %.3f %%' % (100*f1_score(y_test, y_pred, average = 'macro')))
         print(score)
+        print(y_pred)
         return score
         
 if __name__ == "__main__":
-    label_name_dict = {'humour_int':0,'sarcasm_int':1,'offensive_int':2,'motivational_int':3,'overall_sentiment_int':4}
+    # label_name_dict = {'humour_int':0,'sarcasm_int':1,'offensive_int':2,'motivational_int':3,'overall_sentiment_int':4}
     # label_name_dict = {'motivational_int':3,'overall_sentiment_int':4}
-    # label_name_dict = {'overall_sentiment_int':4}
+    label_name_dict = {'overall_sentiment_int':4}
     for key in label_name_dict.keys():
         print(key)
         score_tot = 0
         for j in range(1):
-            svm = SVM_Classifier('rbf',key,_degree=16)
+            svm = SVM_Classifier('linear',key,_degree=16)
             # svm.readTxtEmb("memotion_analysis_training_data/data_7000_textEmbs.csv")
             svm.readTxtEmb("semeval-2020_trialdata/data1_textEmbs.csv")
             # dataset = svm.readData('train')
             dataset = svm.readData('trial')
-            X_test,y_test = svm.trainAndSplitData(dataset,4)
+            X_test,y_test = svm.trainAndSplitData(dataset,16)
             score = svm.test(X_test,y_test)
             score_tot+=score
         # print(score_tot)

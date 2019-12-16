@@ -30,8 +30,8 @@ import copy
 def get_dataloaders(data_path, img_path, batch_size, split_seq):
     # split_seq: [0.8, 0.2], 80% data for training, 10% for validation, the rest of data for testing
     data_transform = transforms.Compose([
-      # ResizeSample(size=(299, 299)),
-      ResizeSample(size=(256,256)),
+      ResizeSample(size=(299, 299)),
+      # ResizeSample(size=(256,256)),
       ToTensorSample(),
       NormalizeSample((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
@@ -91,7 +91,7 @@ def main():
         # InceptRobertaAttentionModel
         # CNNGloveAttentionModel
         # CNNRobertaAttentionModel
-        deepsentatt_model = CNNGloveAttentionModel(**deepsentatt_config)
+        deepsentatt_model = InceptRobertaAttentionModel(**deepsentatt_config)
         # Send the model to GPU
         deepsentatt_model = deepsentatt_model.to(device)
 

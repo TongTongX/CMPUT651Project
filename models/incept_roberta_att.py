@@ -37,7 +37,10 @@ class InceptRobertaAttentionModel(nn.Module):
         print('self.inception:\n{}'.format(self.inception))
         self.image_size = 299
 
-        self.img_classification_head = nn.Linear(self.num_ftrs, self.num_classes)
+        self.img_fc1 = nn.Linear(self.num_ftrs, 512)
+        self.img_batch_norm1 = nn.BatchNorm1d(512)
+
+        self.img_classification_head = nn.Linear(512, self.num_classes)
 
 
         # Text model
@@ -64,6 +67,7 @@ class InceptRobertaAttentionModel(nn.Module):
         else:
             image_features = self.inception(image_batch)
 
+        image_features = F.relu(self.img_batch_norm1(self.img_fc1(image_features)))
 
         img_pred_output = F.softmax(F.relu(self.img_classification_head(image_features)), dim=1)
 

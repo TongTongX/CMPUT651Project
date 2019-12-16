@@ -20,6 +20,8 @@ from data.meme_transforms import ResizeSample, ToTensorSample, NormalizeSample
 from myDataLoader import MyDataLoader
 import torch
 
+from sklearn.metrics import f1_score
+
 
 class LogisticRegression_MultiClass:
     def __init__(self):
@@ -113,7 +115,8 @@ def eval_classifier(meme_dataset_transformed, imgname_textEmbs):
 
     training_batch_num = int(0.9*len(meme_dataset_transformed)) // batchSize
 
-    task1_classes = ['humour', 'sarcasm', 'offensive', 'motivational', 'overall_sentiment']
+    # task1_classes = ['humour', 'sarcasm', 'offensive', 'motivational', 'overall_sentiment']
+    task1_classes = ['overall_sentiment_ternary']
 
     for task1_class in task1_classes:
         print('Task 1 class: ', task1_class)
@@ -147,39 +150,43 @@ def eval_classifier(meme_dataset_transformed, imgname_textEmbs):
         task1_train_acc = lr_multiclass_classifier.cal_accuracy(train_X_arr, train_task1_y_arr)
         task1_test_acc = lr_multiclass_classifier.cal_accuracy(test_X_arr, test_task1_y_arr)
 
+        task1_train_f1 = f1_score(train_task1_y_arr, lr_multiclass_classifier.predict(train_X_arr), average='macro')
+        task1_test_f1 = f1_score(test_task1_y_arr, lr_multiclass_classifier.predict(test_X_arr), average='macro')
+
         print('Training accuracy: ', task1_train_acc)
         print('Testing accuracy: ', task1_test_acc)
+        print('Testing f1: ', task1_test_f1)
 
-    print('Task 2: ')
-
-    train_task2_y_arr = None
-    test_task2_y_arr = []
-
-    lr_multilabel_classifier = LogisticRegression_MultiLabel()
-
-    for i_batch, sample in enumerate(dataloader):
-        if i_batch < training_batch_num:
-            # Partial fit
-            X_arr, task2_y_arr = getData(sample, imgname_textEmbs, False, '')
-
-            lr_multilabel_classifier.fit(X_arr, task2_y_arr)
-
-            train_X_arr = X_arr
-            train_task2_y_arr = task2_y_arr
-        else:
-            X_arr, task2_y_arr = getData(sample, imgname_textEmbs, False, '')
-
-            test_X_arr += list(X_arr)
-            test_task2_y_arr += list(task2_y_arr)
-
-    test_X_arr = np.asarray(test_X_arr)
-    test_task2_y_arr = np.asarray(test_task2_y_arr)
-
-    task2_train_acc = lr_multilabel_classifier.cal_accuracy(train_X_arr, train_task2_y_arr)
-    task2_test_acc = lr_multilabel_classifier.cal_accuracy(test_X_arr, test_task2_y_arr)
-
-    print("Training accuracy", task2_train_acc)
-    print("Testing accuracy", task2_test_acc)
+    # print('Task 2: ')
+    #
+    # train_task2_y_arr = None
+    # test_task2_y_arr = []
+    #
+    # lr_multilabel_classifier = LogisticRegression_MultiLabel()
+    #
+    # for i_batch, sample in enumerate(dataloader):
+    #     if i_batch < training_batch_num:
+    #         # Partial fit
+    #         X_arr, task2_y_arr = getData(sample, imgname_textEmbs, False, '')
+    #
+    #         lr_multilabel_classifier.fit(X_arr, task2_y_arr)
+    #
+    #         train_X_arr = X_arr
+    #         train_task2_y_arr = task2_y_arr
+    #     else:
+    #         X_arr, task2_y_arr = getData(sample, imgname_textEmbs, False, '')
+    #
+    #         test_X_arr += list(X_arr)
+    #         test_task2_y_arr += list(task2_y_arr)
+    #
+    # test_X_arr = np.asarray(test_X_arr)
+    # test_task2_y_arr = np.asarray(test_task2_y_arr)
+    #
+    # task2_train_acc = lr_multilabel_classifier.cal_accuracy(train_X_arr, train_task2_y_arr)
+    # task2_test_acc = lr_multilabel_classifier.cal_accuracy(test_X_arr, test_task2_y_arr)
+    #
+    # print("Training accuracy", task2_train_acc)
+    # print("Testing accuracy", task2_test_acc)
 
 def get_transformed_dataset(textEmb_path, data_path, img_path):
     '''

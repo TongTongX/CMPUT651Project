@@ -15,7 +15,11 @@ from models.deep_sentiment_att import DeepSentimentAttentionModel
 from models.deep_sentiment_fusion import DeepSentimentFusionModel
 from models.deep_sentiment_svm import DeepSentimentSVM_Model
 from models.incept_roberta_att import InceptRobertaAttentionModel
+from models.cnn_glove_att import CNNGloveAttentionModel
+from models.cnn_roberta_att import CNNRobertaAttentionModel
 from models.model_utils import *
+
+import syluutils as utils
 
 from sklearn.svm import SVC
 
@@ -26,9 +30,10 @@ import copy
 def get_dataloaders(data_path, img_path, batch_size, split_seq):
     # split_seq: [0.8, 0.2], 80% data for training, 10% for validation, the rest of data for testing
     data_transform = transforms.Compose([
-      ResizeSample(size=(299, 299)),
+      # ResizeSample(size=(299, 299)),
+      ResizeSample(size=(256,256)),
       ToTensorSample(),
-      NormalizeSample(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+      NormalizeSample((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
     meme_dataset_transformed = MemeDataset(
       csv_file=os.path.join(os.getcwd(), data_path),
@@ -64,9 +69,11 @@ def main():
     train_data_path = '../data/data_7000_new.csv'
     train_img_path = '../data/memotion_analysis_training_data/data_7000/'
 
-    batch_size = 64
+    batch_size = 4
 
-    dataloaders_dict = get_dataloaders(train_data_path, train_img_path, batch_size, [0.8, 0.2])
+    dataloaders_dict = get_dataloaders(trial_data_path, trial_img_path, batch_size, [0.8, 0.2])
+    # train_loader, test_loader = utils.getTrainTestLoader(train_data_path, batch_size)
+    # dataloaders_dict = {'train': train_loader, 'val': test_loader}
 
     # Detect if we have a GPU available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -82,7 +89,9 @@ def main():
         # DeepSentimentFusionModel
         # DeepSentimentSVM_Model
         # InceptRobertaAttentionModel
-        deepsentatt_model = InceptRobertaAttentionModel(**deepsentatt_config)
+        # CNNGloveAttentionModel
+        # CNNRobertaAttentionModel
+        deepsentatt_model = CNNGloveAttentionModel(**deepsentatt_config)
         # Send the model to GPU
         deepsentatt_model = deepsentatt_model.to(device)
 
@@ -112,7 +121,9 @@ def main():
 
         # Train and evaluate
         deepsentatt_model, hist = train_att_model(model=deepsentatt_model, dataloaders=dataloaders_dict,
-            criterion=criterion, optimizer=optimizer_ft, att_head_num=att_head, num_epochs=5, is_inception=True)
+            criterion=criterion, optimizer=optimizer_ft, att_head_num=att_head, num_epochs=15, is_inception=True)
+        # deepsentatt_model, hist = train_balanced_att_model(model=deepsentatt_model, dataloaders=dataloaders_dict, imgpath=train_img_path,
+        #     criterion=criterion, optimizer=optimizer_ft, att_head_num=att_head, num_epochs=5, is_inception=True)
         # deepsentatt_model, hist = train_svm_model(model=deepsentatt_model, dataloaders=dataloaders_dict,
         #     criterion=criterion, optimizer=optimizer_ft, num_epochs=20, is_inception=True)
 

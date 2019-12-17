@@ -1,13 +1,12 @@
-from __future__ import print_function
+from __future__ import absolute_import
 from __future__ import division
+from __future__ import print_function
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
-import torchvision
-from torchvision import datasets, models, transforms
-import matplotlib.pyplot as plt
+from torchvision import models
 import time
 import os
 import copy

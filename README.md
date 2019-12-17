@@ -21,3 +21,4 @@ $ curl -Lo encoder/infersent1.pkl https://dl.fbaipublicfiles.com/infersent/infer
 ```
 $ git clone git@github.com:pytorch/fairseq.git
 ```
+7. Download the pretrained RoBERTa model `roberta.large` [here](https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.md). Decompress the file, and place the folder in the project directory.
